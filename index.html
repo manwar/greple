@@ -38,7 +38,7 @@
 <h1>
 <a name="synopsis" class="anchor" href="#synopsis"><span class="octicon octicon-link"></span></a>SYNOPSIS</h1>
 
-<p><strong>greple</strong> [ <strong>-options</strong> ] pattern [ file... ]</p>
+<p><strong>greple</strong> [<strong>-M</strong>_module_] [ <strong>-options</strong> ] pattern [ file... ]</p>
 
 <pre><code>pattern           'positive -negative ?alternative'
 
@@ -53,52 +53,55 @@
 <a name="options" class="anchor" href="#options"><span class="octicon octicon-link"></span></a><strong>OPTIONS</strong>
 </h2>
 
-<pre><code>-i                ignore case
--l                list filename only
--c                print count of matched block only
--n                print line number
--h                do not display filenames
--H                always display filenames
---inside=pattern  limit matching area
---outside=pattern opposite to --inside
---strict          strict mode for --inside/outside --block
---join            delete newline in the matched part
---joinby=string   replace newline in the matched text by string
+<pre><code>-i                   ignore case
+-l                   list filename only
+-c                   print count of matched block only
+-n                   print line number
+-h                   do not display filenames
+-H                   always display filenames
+--inside=pattern     limit matching area
+--outside=pattern    opposite to --inside
+--revinside=pattern  inside reverse pattern
+--revoutside=pattern outside reverse pattern
+--strict             strict mode for --inside/outside --block
+--join               delete newline in the matched part
+--joinby=string      replace newline in the matched text by string
 
---need=n          required positive match count
---allow=n         acceptable negative match count
+--need=n             required positive match count
+--allow=n            acceptable negative match count
 
---color=when      use termninal color (auto, always, never)
---nocolor         same as --color=never
---colormode=mode  R, G, B, C, M, Y, W, Standout, bolD, Underline
---colorful        same as --colormode 'RD GD BD CD MD YD'
---random          random color
+--color=when         use terminal color (auto, always, never)
+--nocolor            same as --color=never
+--colormode=mode     R, G, B, C, M, Y, W, Standout, bolD, Underline
+--colorful           same as --colormode 'RD GD BD CD MD YD'
+--random             random color
+--regioncolor        color by region
 
--o                print only the matching part
--p                paragraph mode
--A[n]             after match context
--B[n]             before match context
--C[n]             after and before match context
---all             print whole data
---block=pattern   specify the block of records
---blockend=s      specify the block end mark (Default: "--\n")
+-o                   print only the matching part
+-p                   paragraph mode
+-A[n]                after match context
+-B[n]                before match context
+-C[n]                after and before match context
+--all                print whole data
+--block=pattern      specify the block of records
+--blockend=s         specify the block end mark (Default: "--\n")
 
--f file           file contains search pattern
--d flags          display info (f:file d:dir c:count m:misc s:stat)
---man             show manual page
---icode=name      specify file encoding
---ocode=name      specify output encoding
---if=filter       set filter command
---of=filter       output filter command
---[no]pgp         decrypt and find PGP file (Default: false)
---pgppass=phrase  pgp passphrase
---[no]decompress  process compressed data (Default: true)
---readlist        get filenames from stdin
---chdir           change directory before search
---glob=glob       glob target files
---print=func      print function
---continue        continue after print function
---norc            skip reading startup file
+-f file              file contains search pattern
+-d flags             display info (f:file d:dir c:count m:misc s:stat)
+--man                show manual page
+--icode=name         specify file encoding
+--ocode=name         specify output encoding
+--if=filter          set filter command
+--of=filter          output filter command
+--[no]pgp            decrypt and find PGP file (Default: false)
+--pgppass=phrase     pgp passphrase
+--[no]decompress     process compressed data (Default: true)
+--readlist           get filenames from stdin
+--chdir              change directory before search
+--glob=glob          glob target files
+--print=func         print function
+--continue           continue after print function
+--norc               skip reading startup file
 </code></pre>
 
 <h1>
@@ -351,8 +354,8 @@ expected.</p>
 
 <p>Specify color mode.  Use combination string from R(ed), G(reen),
 B(lue), C(yan), M(agenta), Y(ellow), W(hite), U(nderline), (bol)D,
-S(tandout).  Lowercase form of RGBW means background color.  Default
-is RD: RED and BOLD.</p>
+S(tandout).  Lowercase form of RGBCMYW means background color.
+Default is RD: RED and BOLD.</p>
 
 <p>If the mode string contains comma ',' character, they are used to
 quote the matched string.  If you want to quote the pattern by angle
@@ -466,6 +469,14 @@ searches from C source, excluding comment part.</p>
 <pre><code>greple --inside='(?s)^=.*?(^=cut|\Z)'
 </code></pre>
 
+<p>When multiple <strong>inside</strong> and <strong>outside</strong> regions are specified, those
+regions are mixed up in union way.</p>
+
+<p>In multiple color environment, and if single keyword is specified,
+matches in each <strong>--inside</strong>/<strong>outside</strong> regions are printed in
+different colors.  Forcing this operation with multiple keywords, use
+<strong>--regioncolor</strong> option.</p>
+
 <h4>
 <a name="--insidefunction" class="anchor" href="#--insidefunction"><span class="octicon octicon-link"></span></a><strong>--inside</strong>=<em>&amp;function</em>
 </h4>
@@ -475,33 +486,43 @@ searches from C source, excluding comment part.</p>
 </h4>
 
 <p>If the pattern name begins by ampersand (&amp;) character, it is treated
-as a name of subroutine which returns a list of blocks to exclude.
-Using this option, user can use arbitrary function to determine from
-what part of the text they want to search.  User defined function is
-written in <code>.greplerc</code> file or explicitly included by <strong>--require</strong>
-option.</p>
+as a name of subroutine which returns a list of blocks.  Using this
+option, user can use arbitrary function to determine from what part of
+the text they want to search.  User defined function can be defined in
+<code>.greplerc</code> file or by module option.</p>
 
-<pre><code>greple --require mycode.pl --outside '&amp;myfunc' pattern *
+<h4>
+<a name="--includepattern" class="anchor" href="#--includepattern"><span class="octicon octicon-link"></span></a><strong>--include</strong>=<em>pattern</em>
+</h4>
+
+<h4>
+<a name="--excludepattern" class="anchor" href="#--excludepattern"><span class="octicon octicon-link"></span></a><strong>--exclude</strong>=<em>pattern</em>
+</h4>
+
+<h4>
+<a name="--includefunction" class="anchor" href="#--includefunction"><span class="octicon octicon-link"></span></a><strong>--include</strong>=<em>&amp;function</em>
+</h4>
+
+<h4>
+<a name="--excludefunction" class="anchor" href="#--excludefunction"><span class="octicon octicon-link"></span></a><strong>--exclude</strong>=<em>&amp;function</em>
+</h4>
+
+<p><strong>--include</strong>/<strong>exclude</strong> option behave exactly same as
+<strong>--inside</strong>/<strong>outside</strong> when used alone.</p>
+
+<p>When used in combination, <strong>--include</strong>/<strong>exclude</strong> are mixed in AND
+manner, while <strong>--inside</strong>/<strong>outside</strong> are in OR.</p>
+
+<p>Thus, in the next example, first line prints all matches, and second
+does none.</p>
+
+<pre><code>greple --inside PATTERN --outside PATTERN
+
+greple --include PATTERN --exclude PATTERN
 </code></pre>
 
-<p>Argument can be specified after function name with '=' character.
-Next example is equivalent to the above example.</p>
-
-<pre><code>sub myfunc {
-    my($pattern) = @_;
-    my @matched;
-    my $re = qr/$pattern/m;
-    while (/$re/g) {
-        push(@matched, [ $-[0], $+[0] ]);
-    }
-    @matched;
-}
-
-greple --outside '&amp;myfunc=(?s)/\*.*?\*/' if *.c
-</code></pre>
-
-<p><strong>--outside</strong> and <strong>--inside</strong> option can be specified mixed together
-and multiple times.</p>
+<p>You can make up desired matches using <strong>--inside</strong>/<strong>outside</strong> option,
+then remove unnecessary part by <strong>--include</strong>/<strong>exclude</strong></p>
 
 <h4>
 <a name="--strict" class="anchor" href="#--strict"><span class="octicon octicon-link"></span></a><strong>--strict</strong>
@@ -751,10 +772,13 @@ p: run 'ps' command before termination (on Unix)
 are inserted before command line options.</p>
 
 <p>Before starting execution, <em>greple</em> reads the file named <code>.greplerc</code>
-on user's home directory.  In rc file, user can define own options.
-There are three directives rc file: 'option', 'define' and 'help'.
-First argument of 'option' directive is user defined option name.  The
-rest are processed by <em>shellwords</em> routine defined by
+on user's home directory.  Following directives can be used.</p>
+
+<h4>
+<a name="option-name-string" class="anchor" href="#option-name-string"><span class="octicon octicon-link"></span></a><strong>option</strong> <em>name</em> string</h4>
+
+<p>Argument <em>name</em> of 'option' directive is user defined option name.
+The rest are processed by <em>shellwords</em> routine defined in
 Text::ParseWords module.  Be sure that this module sometimes requires
 escape backslashes.</p>
 
@@ -765,26 +789,37 @@ with other options.</p>
 option --fromcomment --inside='(?s)\/\*.*?\*\/'
 </code></pre>
 
-<p>Another directive 'define' is almost same as 'option', but argument is
-not processed by <em>shellwords</em> and treated just a simple text.
+<p>If the option named <strong>default</strong> is defined, it will be used as a
+default option.</p>
+
+<h4>
+<a name="help-name" class="anchor" href="#help-name"><span class="octicon octicon-link"></span></a><strong>help</strong> <em>name</em>
+</h4>
+
+<p>If 'help' directive is used for same option name, it will be printed
+in usage message.  If the help message is 'ignore', corresponding line
+won't show up in the usage.</p>
+
+<h4>
+<a name="define-name-string" class="anchor" href="#define-name-string"><span class="octicon octicon-link"></span></a><strong>define</strong> <em>name</em> string</h4>
+
+<p>Directive 'define' is almost same as 'option', but argument is not
+processed by <em>shellwords</em> and treated just a simple text.
 Metacharacters can be included without escaping.  Defined string
 replacement is done only in definition in option argument.  If you
-want to use the word in command line, use option directive instead.
-If 'help' directive is used for same option name, it will be printed
-in usage message.  If the help message is 'ignore', corresponding line
-won't show up in the usage,</p>
+want to use the word in command line, use option directive instead.</p>
 
 <pre><code>define :kana: \p{utf8::InKatakana}
 option --kanalist --color=never -o --join --re ':kana:[:kana:\n]+'
 help   --kanalist List up Katakana string
 </code></pre>
 
-<p>When <em>greple</em> found <code>__CODE__</code> line in <code>.greplerc</code> file, the rest of
-the file is evaluated as a Perl program.  You can define your own
-subroutines which can be used by --inside and --outside options.  For
-those subroutines, file content will be provided by global variable
-$_.  Expected response from the subroutine is the list of numbers,
-which is made up by start and end offset pairs.</p>
+<p>When <em>greple</em> found <code>__CODE__</code> line in <code>.greplerc</code> file, the rest
+of the file is evaluated as a Perl program.  You can define your own
+subroutines which can be used by <strong>--inside</strong> and <strong>--outside</strong> options.
+For those subroutines, file content will be provided by global
+variable <code>$_</code>.  Expected response from the subroutine is the list of
+array references, which is made up by start and end offset pairs.</p>
 
 <p>For example, suppose that the following function is defined in your
 <code>.greplerc</code> file.</p>
@@ -803,11 +838,98 @@ sub odd_line {
 <p>You can use next command to search pattern included in odd number
 lines.</p>
 
-<pre><code>% greple --inside &amp;odd_line patten files...
+<pre><code>% greple --inside '&amp;odd_line' patten files...
 </code></pre>
 
-<p>If you do not want to evaluate those programs in all invocation of the
-command, use --require option to include arbitrary perl program files.</p>
+<h1>
+<a name="module" class="anchor" href="#module"><span class="octicon octicon-link"></span></a>MODULE</h1>
+
+<p>Modules can be specified only at the beginning of command line by
+<strong>-M</strong>_module_ option.  Name <em>module</em> is prepended by <strong>App::Greple</strong>,
+so place the module file in <code>App/Greple/</code> directory in Perl library.</p>
+
+<p>If the package name is declared properly, <code>__DATA__</code> section in the
+module file will be interpreted same as <code>.greplerc</code> file content.</p>
+
+<p>See this sample module code.  This sample define options to search
+from pod, comment and other segment in Perl script.  Those capability
+can be implemented both in function and macro.</p>
+
+<pre><code>package App::Greple::perl;
+
+
+BEGIN {
+    use Exporter   ();
+    our ($VERSION, @ISA, @EXPORT, @EXPORT_OK, %EXPORT_TAGS);
+
+
+    $VERSION = sprintf "%d.%03d", q$Revision: 6.14 $ =~ /(\d+)/g;
+
+
+    @ISA         = qw(Exporter);
+    @EXPORT      = qw(&amp;pod &amp;comment &amp;podcomment);
+    %EXPORT_TAGS = ( );
+    @EXPORT_OK   = qw();
+}
+our @EXPORT_OK;
+
+
+END { }
+
+
+my $pod_re = qr{^=\w+(?s:.*?)(?:\Z|^=cut\s*\n)}m;
+my $comment_re = qr{^(?:[ \t]*#.*\n)+}m;
+
+
+sub pod {
+    my @list;
+    while (/$pod_re/g) {
+        push(@list, [ $-[0], $+[0] ] );
+    }
+    @list;
+}
+sub comment {
+    my @list;
+    while (/$comment_re/g) {
+        push(@list, [ $-[0], $+[0] ] );
+    }
+    @list;
+}
+sub podcomment {
+    my @list;
+    while (/$pod_re|$comment_re/g) {
+        push(@list, [ $-[0], $+[0] ] );
+    }
+    @list;
+}
+
+
+1;
+
+
+__DATA__
+
+
+define :comment: ^(\s*#.*\n)+
+define :pod: ^=(?s:.*?)(?:\Z|^=cut\s*\n)
+
+
+#option --pod --inside :pod:
+#option --comment --inside :comment:
+#option --code --outside :pod:|:comment:
+
+
+option --pod --inside '&amp;pod'
+option --comment --inside '&amp;comment'
+option --code --outside '&amp;podcomment'
+</code></pre>
+
+<p>You can use the module like this:</p>
+
+<pre><code>greple -Mperl --pod ...
+
+greple -Mperl --code --comment --pod ...
+</code></pre>
 
 <h1>
 <a name="history" class="anchor" href="#history"><span class="octicon octicon-link"></span></a>HISTORY</h1>
