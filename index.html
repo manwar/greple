@@ -1,34 +1,36 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <meta charset='utf-8'>
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <title>Greple by kaz-utashiro</title>
 
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
-    <title>Greple by kaz-utashiro</title>
   </head>
-
   <body>
-    <header>
-      <div class="inner">
-        <h1>Greple</h1>
-        <h2>greple: grep type command with multiple keywords</h2>
-        <a href="https://github.com/kaz-utashiro/greple" class="button"><small>View project on</small>GitHub</a>
-      </div>
-    </header>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">Greple</h1>
+        <p class="header">greple: grep type command with multiple keywords</p>
 
-    <div id="content-wrapper">
-      <div class="inner clearfix">
-        <section id="main-content">
-          <h1>
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/kaz-utashiro/greple/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/kaz-utashiro/greple/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/kaz-utashiro/greple">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/kaz-utashiro">kaz-utashiro</a></p>
+
+
+      </header>
+      <section>
+        <h1>
 <a name="name" class="anchor" href="#name"><span class="octicon octicon-link"></span></a>NAME</h1>
 
 <p>greple - grep with multiple keywords</p>
@@ -47,9 +49,7 @@
 --fe pattern      fixed expression
 </code></pre>
 
-<h2>
-<a name="options" class="anchor" href="#options"><span class="octicon octicon-link"></span></a><strong>OPTIONS</strong>
-</h2>
+<p><strong>OPTIONS</strong></p>
 
 <pre><code>-i                   ignore case
 -l                   list filename only
@@ -59,11 +59,13 @@
 -H                   always display filenames
 --inside=pattern     select matches inside of pattern
 --outside=pattern    select matches outside of pattern
---include=pattern    reduce matches
---exclude=pattern    reduce matches
+--include=pattern    reduce matches to the area
+--exclude=pattern    reduce matches to outside of the area
 --strict             strict mode for --inside/outside --block
 --join               delete newline in the matched part
 --joinby=string      replace newline in the matched text by string
+--filestyle=style    how filename printed (once, separate, line)
+--linestyle=style    how line number printed (separate, line)
 
 --need=n             required positive match count
 --allow=n            acceptable negative match count
@@ -91,9 +93,9 @@
 --ocode=name         specify output encoding
 --if=filter          set filter command
 --of=filter          output filter command
+--noif               disable default input filter
 --[no]pgp            decrypt and find PGP file (Default: false)
 --pgppass=phrase     pgp passphrase
---[no]decompress     process compressed data (Default: true)
 --readlist           get filenames from stdin
 --chdir              change directory before search
 --glob=glob          glob target files
@@ -107,8 +109,8 @@
 
 <p><strong>greple</strong> has almost the same function as Unix command <a href="http://man.he.net/man1/egrep">egrep(1)</a> but
 the search is done in the manner similar to search engine.  For
-example, next command print lines those contain all of 'foo' and 'bar'
-and 'baz'.</p>
+example, next command print lines those contain all of `foo' and `bar'
+and `baz'.</p>
 
 <pre><code>greple 'foo bar baz' ...
 </code></pre>
@@ -121,19 +123,19 @@ baz bar foo
 the foo, bar and baz
 </code></pre>
 
-<p>If you want to use OR syntax, prepend question ('?') mark on each
+<p>If you want to use OR syntax, prepend question (`?') mark on each
 token, or use regular expression.</p>
 
 <pre><code>greple 'foo bar baz ?yabba ?dabba ?doo'
 greple 'foo bar baz yabba|dabba|doo'
 </code></pre>
 
-<p>This command will print the line which contains all of 'foo', 'bar'
-and 'baz' and one or more from 'yabba', 'dabba' or 'doo'.</p>
+<p>This command will print the line which contains all of `foo', `bar'
+and `baz' and one or more from `yabba', `dabba' or `doo'.</p>
 
-<p>NOT operator can be specified by prefixing the token by minus ('-')
-sign.  Next example will show the line which contain both 'foo' and
-bar' but none of 'yabba' or 'dabba' or 'doo'.  It is ok to put '+'
+<p>NOT operator can be specified by prefixing the token by minus (`-')
+sign.  Next example will show the line which contain both `foo' and
+bar' but none of `yabba' or `dabba' or `doo'.  It is ok to put `+'
 mark for positive matching pattern.</p>
 
 <pre><code>greple 'foo bar -yabba -dabba -doo'
@@ -146,9 +148,7 @@ greple '+foo +bar -yabba|dabba|doo'
 greple -e foo -e bar -v 'yabba|dabba|doo'
 </code></pre>
 
-<h2>
-<a name="line-across-match" class="anchor" href="#line-across-match"><span class="octicon octicon-link"></span></a><strong>LINE ACROSS MATCH</strong>
-</h2>
+<p><strong>LINE ACROSS MATCH</strong></p>
 
 <p><strong>greple</strong> also search the pattern across the line boundaries.  This is
 especially useful to handle Asian multi-byte text.  Japanese text can
@@ -159,11 +159,9 @@ Use <strong>-e</strong> option to use this capability because space is taken as 
 token separator in the bare pattern.</p>
 
 <h1>
-<a name="options-1" class="anchor" href="#options-1"><span class="octicon octicon-link"></span></a>OPTIONS</h1>
+<a name="options" class="anchor" href="#options"><span class="octicon octicon-link"></span></a>OPTIONS</h1>
 
-<h2>
-<a name="patterns" class="anchor" href="#patterns"><span class="octicon octicon-link"></span></a><strong>PATTERNS</strong>
-</h2>
+<p><strong>PATTERNS</strong></p>
 
 <p>If specific option is not provided, <strong>greple</strong> takes the first argument
 as a search pattern specified by <strong>-le</strong> option.  All of these patterns
@@ -172,28 +170,27 @@ can be specified multiple times.</p>
 <p>Command itself is written in Perl, and any kind of Perl style regular
 expression can be used in patterns.</p>
 
-<h4>
-<a name="--lepattern" class="anchor" href="#--lepattern"><span class="octicon octicon-link"></span></a><strong>--le</strong>=<em>pattern</em>
-</h4>
+<ul>
+<li>
+<p><strong>--le</strong>=<em>pattern</em></p>
 
 <p>Treat the string as a collection of tokens separated by spaces.  Each
-token is interpreted by the first character.  Token start with '-'
-means negative pattern, '?' means alternative, optional '+' and
+token is interpreted by the first character.  Token start with `-'
+means negative pattern, `?' means alternative, optional `+' and
 anything other means positive match.</p>
 
-<p>Next example print lines which contains 'foo' and 'bar', and one or
-more of 'yabba' and 'dabba', and none of 'bar' and 'doo'.</p>
+<p>Next example print lines which contains `foo' and `bar', and one or
+more of `yabba' and 'dabba', and none of `bar' and `doo'.</p>
 
 <pre><code>greple --le='foo bar -baz ?yabba ?dabba -doo'
 </code></pre>
 
-<p>Multiple '?' preceded tokens are treated all mixed together.  That
-means '?A|B ?C|D' is equivalent to '?A|B|C|D'.  If you want to mean
-'(A or B) and (C or D)', use AND syntax instead: 'A|B C|D'.</p>
-
-<h4>
-<a name="-e-pattern---andpattern" class="anchor" href="#-e-pattern---andpattern"><span class="octicon octicon-link"></span></a><strong>-e</strong> <em>pattern</em>, <strong>--and</strong>=<em>pattern</em>
-</h4>
+<p>Multiple `?' preceded tokens are treated all mixed together.  That
+means `?A|B ?C|D' is equivalent to `?A|B|C|D'.  If you want to mean
+`(A or B) and (C or D)', use AND syntax instead: `A|B C|D'.</p>
+</li>
+<li>
+<p><strong>-e</strong> <em>pattern</em>, <strong>--and</strong>=<em>pattern</em></p>
 
 <p>Specify positive match token.  Next two commands are equivalent.</p>
 
@@ -202,7 +199,7 @@ greple -e foo -e bar -e baz
 </code></pre>
 
 <p>First character is not interpreted, so next commands will search the
-pattern '-baz'.</p>
+pattern `-baz'.</p>
 
 <pre><code>greple -e -baz
 </code></pre>
@@ -210,15 +207,14 @@ pattern '-baz'.</p>
 <p>Space characters are treated specially by <strong>-e</strong> and <strong>-v</strong> options.
 They are replaced by the pattern which matches any number of
 white spaces including newline.  So the pattern can be expand to
-multiple lines.  Next commands search the series of word 'foo', 'bar'
-and 'baz' even if they are separated by newlines.</p>
+multiple lines.  Next commands search the series of word `foo', `bar'
+and `baz' even if they are separated by newlines.</p>
 
 <pre><code>greple -e 'foo bar baz'
 </code></pre>
-
-<h4>
-<a name="-v-pattern---notpattern" class="anchor" href="#-v-pattern---notpattern"><span class="octicon octicon-link"></span></a><strong>-v</strong> <em>pattern</em>, <strong>--not</strong>=<em>pattern</em>
-</h4>
+</li>
+<li>
+<p><strong>-v</strong> <em>pattern</em>, <strong>--not</strong>=<em>pattern</em></p>
 
 <p>Specify negative match token.  Because it does not affect to the bare
 pattern argument, you can narrow down the search result like this.</p>
@@ -227,74 +223,61 @@ pattern argument, you can narrow down the search result like this.</p>
 greple foo pattern file -v bar
 greple foo pattern file -v bar -v baz
 </code></pre>
-
-<h4>
-<a name="--repattern" class="anchor" href="#--repattern"><span class="octicon octicon-link"></span></a><strong>--re</strong>=<em>pattern</em>
-</h4>
+</li>
+<li>
+<p><strong>--re</strong>=<em>pattern</em></p>
 
 <p>Specify regular expression.  No special treatment for space and wide
 characters.</p>
-
-<h4>
-<a name="--fepattern" class="anchor" href="#--fepattern"><span class="octicon octicon-link"></span></a><strong>--fe</strong>=<em>pattern</em>
-</h4>
+</li>
+<li>
+<p><strong>--fe</strong>=<em>pattern</em></p>
 
 <p>Specify fixed string pattern, like fgrep.</p>
+</li>
+</ul><p><strong>GREP LIKE OPTIONS</strong></p>
 
-<h2>
-<a name="grep-like-options" class="anchor" href="#grep-like-options"><span class="octicon octicon-link"></span></a><strong>GREP LIKE OPTIONS</strong>
-</h2>
-
-<h4>
-<a name="-i" class="anchor" href="#-i"><span class="octicon octicon-link"></span></a><strong>-i</strong>
-</h4>
+<ul>
+<li>
+<p><strong>-i</strong></p>
 
 <p>Ignore case.</p>
-
-<h4>
-<a name="-l" class="anchor" href="#-l"><span class="octicon octicon-link"></span></a><strong>-l</strong>
-</h4>
+</li>
+<li>
+<p><strong>-l</strong></p>
 
 <p>List filename only.</p>
-
-<h4>
-<a name="-c---count" class="anchor" href="#-c---count"><span class="octicon octicon-link"></span></a><strong>-c</strong>, <strong>--count</strong>
-</h4>
+</li>
+<li>
+<p><strong>-c</strong>, <strong>--count</strong></p>
 
 <p>Print count of matched block.</p>
-
-<h4>
-<a name="-n" class="anchor" href="#-n"><span class="octicon octicon-link"></span></a><strong>-n</strong>
-</h4>
+</li>
+<li>
+<p><strong>-n</strong></p>
 
 <p>Show line number.</p>
-
-<h4>
-<a name="-h---no-filename" class="anchor" href="#-h---no-filename"><span class="octicon octicon-link"></span></a><strong>-h</strong>, <strong>--no-filename</strong>
-</h4>
+</li>
+<li>
+<p><strong>-h</strong>, <strong>--no-filename</strong></p>
 
 <p>Do not display filename.</p>
-
-<h4>
-<a name="-h" class="anchor" href="#-h"><span class="octicon octicon-link"></span></a><strong>-H</strong>
-</h4>
+</li>
+<li>
+<p><strong>-H</strong></p>
 
 <p>Display filename always.</p>
-
-<h4>
-<a name="-o" class="anchor" href="#-o"><span class="octicon octicon-link"></span></a><strong>-o</strong>
-</h4>
+</li>
+<li>
+<p><strong>-o</strong></p>
 
 <p>Print matched string only.</p>
-
-<h4>
-<a name="-an---after-contextn" class="anchor" href="#-an---after-contextn"><span class="octicon octicon-link"></span></a><strong>-A</strong>[<em>n</em>], <strong>--after-context</strong>[=<em>n</em>]</h4>
-
-<h4>
-<a name="-bn---before-contextn" class="anchor" href="#-bn---before-contextn"><span class="octicon octicon-link"></span></a><strong>-B</strong>[<em>n</em>], <strong>--before-context</strong>[=<em>n</em>]</h4>
-
-<h4>
-<a name="-cn---contextn" class="anchor" href="#-cn---contextn"><span class="octicon octicon-link"></span></a><strong>-C</strong>[<em>n</em>], <strong>--context</strong>[=<em>n</em>]</h4>
+</li>
+<li><p><strong>-A</strong>[<em>n</em>], <strong>--after-context</strong>[=<em>n</em>]</p></li>
+<li>
+<strong>-B</strong>[<em>n</em>], <strong>--before-context</strong>[=<em>n</em>]</li>
+<li>
+<p><strong>-C</strong>[<em>n</em>], <strong>--context</strong>[=<em>n</em>]</p>
 
 <p>Print <em>n</em>-blocks before/after matched string.  The value <em>n</em> can be
 omitted and the default is 2.  When used with paragraph option <strong>-p</strong>,
@@ -318,44 +301,58 @@ baz
 <pre><code>greple -C1 'foo baz'
 </code></pre>
 
-<p>also matches this text, because matching blocks around 'foo' and 'bar'
+<p>also matches this text, because matching blocks around `foo' and `bar'
 overlaps each other and makes single block.</p>
-
-<h4>
-<a name="-f-file---filefile" class="anchor" href="#-f-file---filefile"><span class="octicon octicon-link"></span></a><strong>-f</strong> <em>file</em>, <strong>--file</strong>=<em>file</em>
-</h4>
+</li>
+<li>
+<p><strong>-f</strong> <em>file</em>, <strong>--file</strong>=<em>file</em></p>
 
 <p>Specify the file which contains search pattern.  When file contains
 multiple lines, patterns on each lines are search in OR context.  The
 line starting with sharp (#) character is ignored.</p>
-
-<h4>
-<a name="--nodecompress" class="anchor" href="#--nodecompress"><span class="octicon octicon-link"></span></a><strong>--</strong>[<strong>no</strong>]<strong>decompress</strong>
-</h4>
-
-<p>Switch for handling compressed files.  Default is true.</p>
-
-<h4>
-<a name="--colorautoalwaysnever---nocolor" class="anchor" href="#--colorautoalwaysnever---nocolor"><span class="octicon octicon-link"></span></a><strong>--color</strong>=<em>auto</em>|<em>always</em>|<em>never</em>, <strong>--nocolor</strong>
-</h4>
+</li>
+<li>
+<p><strong>--color</strong>=<em>auto</em>|<em>always</em>|<em>never</em>, <strong>--nocolor</strong></p>
 
 <p>Use terminal color capability to emphasize the matched text.  Default
-is 'auto': effective when STDOUT is a terminal and option <strong>-o</strong> is not
-given, not otherwise.  Option value 'always' and 'never' will work as
+is `auto': effective when STDOUT is a terminal and option <strong>-o</strong> is not
+given, not otherwise.  Option value `always' and `never' will work as
 expected.</p>
 
 <p>Option <strong>--nocolor</strong> is alias for <strong>--color</strong>=<em>never</em>.</p>
+</li>
+<li>
+<p><strong>--colormode</strong>=<em>RGBCYMKWrgbcymkwSUDF</em>, <strong>--quote</strong>=<em>start</em>,<em>end</em></p>
 
-<h4>
-<a name="--colormodergbcymwrgbcymwubr---quotestartend" class="anchor" href="#--colormodergbcymwrgbcymwubr---quotestartend"><span class="octicon octicon-link"></span></a><strong>--colormode</strong>=<em>RGBCYMWrgbcymwUBR</em>, <strong>--quote</strong>=<em>start</em>,<em>end</em>
-</h4>
+<p>Specify color mode.  Default is RD: RED and BOLD.</p>
 
-<p>Specify color mode.  Use combination string from R(ed), G(reen),
-B(lue), C(yan), M(agenta), Y(ellow), W(hite), U(nderline), (bol)D,
-S(tandout).  Lowercase form of RGBCMYW means background color.
-Default is RD: RED and BOLD.</p>
+<p>COLOR is combination of single character representing uppercase
+foreground color :</p>
 
-<p>If the mode string contains comma ',' character, they are used to
+<pre><code>R  Red
+G  Green
+B  Blue
+C  Cyan
+M  Magenta
+Y  Yellow
+K  Black
+W  White
+</code></pre>
+
+<p>and corresponding lowercase background color :</p>
+
+<pre><code>r, g, b, c, m, y, k, w
+</code></pre>
+
+<p>and other effects :</p>
+
+<pre><code>S  Standout (reverse video)
+U  Underline
+D  Double-struck (boldface)
+F  Flash (blink)
+</code></pre>
+
+<p>If the mode string contains comma `,' character, they are used to
 quote the matched string.  If you want to quote the pattern by angle
 bracket, use like this.</p>
 
@@ -367,24 +364,36 @@ option <strong>--color</strong>=<em>always</em> at the same time.</p>
 
 <p>Multiple colors can be specified separating by white spaces.  Those
 colors will be applied for each pattern keywords.  Next command will
-show word 'foo' in red, 'bar' in green and 'baz' in blue.</p>
+show word `foo' in red, `bar' in green and `baz' in blue.</p>
 
 <pre><code>greple --colormode='R G B' 'foo bar baz' ...
 </code></pre>
-
-<h4>
-<a name="--colorful" class="anchor" href="#--colorful"><span class="octicon octicon-link"></span></a><strong>--colorful</strong>
-</h4>
+</li>
+<li>
+<p><strong>--colorful</strong></p>
 
 <p>Shortcut for <strong>--colormode</strong>='<em>RD GD BD CD MD YD</em>'</p>
+</li>
+<li>
+<p><strong>--filestyle</strong>=<em>style</em>, <strong>--fs</strong></p>
 
-<h2>
-<a name="other-options" class="anchor" href="#other-options"><span class="octicon octicon-link"></span></a><strong>OTHER OPTIONS</strong>
-</h2>
+<p>Default style is <em>line</em>, and <strong>greple</strong> prints filename at the
+beginning of each line.  Style <em>once</em> prints the filename only once
+at the first time.  Style <em>separate</em> prints filename in the separate
+line before each line or block.</p>
+</li>
+<li>
+<p><strong>--linestyle</strong>=<em>style</em>, <strong>--ls</strong></p>
 
-<h4>
-<a name="-p---paragraph" class="anchor" href="#-p---paragraph"><span class="octicon octicon-link"></span></a><strong>-p</strong>, <strong>--paragraph</strong>
-</h4>
+<p>Default style is <em>line</em>, and <strong>greple</strong> prints line numbers at the
+beginning of each line.  Style <em>separate</em> prints line number in the
+separate line before each line or block.</p>
+</li>
+</ul><p><strong>OTHER OPTIONS</strong></p>
+
+<ul>
+<li>
+<p><strong>-p</strong>, <strong>--paragraph</strong></p>
 
 <p>Print the paragraph which contains the pattern.  Each paragraph is
 delimited by two or more successive newline characters by default.  Be
@@ -398,20 +407,18 @@ greple -pe '^struct sockaddr' /usr/include/sys/socket.h
 
 <p>It changes the unit of context specified by <strong>-A</strong>, <strong>-B</strong>, <strong>-C</strong>
 options.</p>
-
-<h4>
-<a name="--all" class="anchor" href="#--all"><span class="octicon octicon-link"></span></a><strong>--all</strong>
-</h4>
+</li>
+<li>
+<p><strong>--all</strong></p>
 
 <p>Treat entire file contents as a single block.  This is almost
 identical to following command.</p>
 
 <pre><code>greple --block='(?s).*'
 </code></pre>
-
-<h4>
-<a name="--blockpattern---blocksub" class="anchor" href="#--blockpattern---blocksub"><span class="octicon octicon-link"></span></a><strong>--block</strong>=<em>pattern</em>, <strong>--block</strong>=<em>&amp;sub</em>
-</h4>
+</li>
+<li>
+<p><strong>--block</strong>=<em>pattern</em>, <strong>--block</strong>=<em>&amp;sub</em></p>
 
 <p>Specify the record block to display.  Default block is a single line.</p>
 
@@ -433,25 +440,20 @@ into single block.</p>
 
 <p>Please be aware that this option is sometimes quite time consuming,
 because it finds all blocks before processing.</p>
-
-<h4>
-<a name="--blockendstring" class="anchor" href="#--blockendstring"><span class="octicon octicon-link"></span></a><strong>--blockend</strong>=<em>string</em>
-</h4>
+</li>
+<li>
+<p><strong>--blockend</strong>=<em>string</em></p>
 
 <p>Change the end mark displayed after <strong>-pABC</strong> or <strong>--block</strong> options.
 Default value is "--\n".</p>
-
-<h4>
-<a name="--insidepattern" class="anchor" href="#--insidepattern"><span class="octicon octicon-link"></span></a><strong>--inside</strong>=<em>pattern</em>
-</h4>
-
-<h4>
-<a name="--outsidepattern" class="anchor" href="#--outsidepattern"><span class="octicon octicon-link"></span></a><strong>--outside</strong>=<em>pattern</em>
-</h4>
+</li>
+<li><p><strong>--inside</strong>=<em>pattern</em></p></li>
+<li>
+<p><strong>--outside</strong>=<em>pattern</em></p>
 
 <p>Option <strong>--inside</strong> and <strong>--outside</strong> limit the text area to be matched.
-For simple example, if you want to find string 'and' not in the word
-'command', it can be done like this.</p>
+For simple example, if you want to find string `and' not in the word
+`command', it can be done like this.</p>
 
 <pre><code>greple --outside=command and
 </code></pre>
@@ -474,36 +476,26 @@ regions are mixed up in union way.</p>
 matches in each <strong>--inside</strong>/<strong>outside</strong> regions are printed in
 different colors.  Forcing this operation with multiple keywords, use
 <strong>--regioncolor</strong> option.</p>
-
-<h4>
-<a name="--insidefunction" class="anchor" href="#--insidefunction"><span class="octicon octicon-link"></span></a><strong>--inside</strong>=<em>&amp;function</em>
-</h4>
-
-<h4>
-<a name="--outsidefunction" class="anchor" href="#--outsidefunction"><span class="octicon octicon-link"></span></a><strong>--outside</strong>=<em>&amp;function</em>
-</h4>
+</li>
+<li><p><strong>--inside</strong>=<em>&amp;function</em></p></li>
+<li>
+<p><strong>--outside</strong>=<em>&amp;function</em></p>
 
 <p>If the pattern name begins by ampersand (&amp;) character, it is treated
 as a name of subroutine which returns a list of blocks.  Using this
 option, user can use arbitrary function to determine from what part of
 the text they want to search.  User defined function can be defined in
 <code>.greplerc</code> file or by module option.</p>
-
-<h4>
-<a name="--includepattern" class="anchor" href="#--includepattern"><span class="octicon octicon-link"></span></a><strong>--include</strong>=<em>pattern</em>
-</h4>
-
-<h4>
-<a name="--excludepattern" class="anchor" href="#--excludepattern"><span class="octicon octicon-link"></span></a><strong>--exclude</strong>=<em>pattern</em>
-</h4>
-
-<h4>
-<a name="--includefunction" class="anchor" href="#--includefunction"><span class="octicon octicon-link"></span></a><strong>--include</strong>=<em>&amp;function</em>
-</h4>
-
-<h4>
-<a name="--excludefunction" class="anchor" href="#--excludefunction"><span class="octicon octicon-link"></span></a><strong>--exclude</strong>=<em>&amp;function</em>
-</h4>
+</li>
+<li><p><strong>--include</strong>=<em>pattern</em></p></li>
+<li>
+<strong>--exclude</strong>=<em>pattern</em>
+</li>
+<li>
+<strong>--include</strong>=<em>&amp;function</em>
+</li>
+<li>
+<p><strong>--exclude</strong>=<em>&amp;function</em></p>
 
 <p><strong>--include</strong>/<strong>exclude</strong> option behave exactly same as
 <strong>--inside</strong>/<strong>outside</strong> when used alone.</p>
@@ -521,10 +513,9 @@ greple --include PATTERN --exclude PATTERN
 
 <p>You can make up desired matches using <strong>--inside</strong>/<strong>outside</strong> option,
 then remove unnecessary part by <strong>--include</strong>/<strong>exclude</strong></p>
-
-<h4>
-<a name="--strict" class="anchor" href="#--strict"><span class="octicon octicon-link"></span></a><strong>--strict</strong>
-</h4>
+</li>
+<li>
+<p><strong>--strict</strong></p>
 
 <p>Limit the match area strictly.</p>
 
@@ -538,14 +529,10 @@ partial match within the specified area.  For instance,</p>
 included in specified inside-area.  Partial match failes when option
 <strong>--strict</strong> provided, and longer string never matches within shorter
 area.</p>
-
-<h4>
-<a name="--join" class="anchor" href="#--join"><span class="octicon octicon-link"></span></a><strong>--join</strong>
-</h4>
-
-<h4>
-<a name="--joinbystring" class="anchor" href="#--joinbystring"><span class="octicon octicon-link"></span></a><strong>--joinby</strong>=<em>string</em>
-</h4>
+</li>
+<li><p><strong>--join</strong></p></li>
+<li>
+<p><strong>--joinby</strong>=<em>string</em></p>
 
 <p>Convert newline character found in matched string to empty or specifed
 <em>string</em>.  Using <strong>--join</strong> with <strong>-o</strong> (only-matching) option, you can
@@ -555,17 +542,16 @@ example, next command prints the list of KATAKANA words.</p>
 
 <pre><code>greple -ho --join '\p{utf8::InKatakana}[\n\p{utf8::InKatakana}]*'
 </code></pre>
-
-<h4>
-<a name="--icodecode" class="anchor" href="#--icodecode"><span class="octicon octicon-link"></span></a><strong>--icode</strong>=<em>code</em>
-</h4>
+</li>
+<li>
+<p><strong>--icode</strong>=<em>code</em></p>
 
 <p>Target file is assumed to be encoded in utf8 by default.  Use this
 option to set specific encoding.  When handling Japanese text, you may
 choose from 7bit-jis (jis), euc-jp or shiftjis (sjis).  Multiple code
 can be supplied using multiple option or combined code names with
 space or comma, then file encoding is guessed from those code sets.
-Use encoding name 'guess' for automatic recognition from default code
+Use encoding name `guess' for automatic recognition from default code
 list which is euc-jp and 7bit-jis.  Following commands are all
 equivalent.</p>
 
@@ -581,20 +567,15 @@ and UTF-16/32.</p>
 
 <pre><code>greple --icode=+euc-kr ...
 </code></pre>
-
-<h4>
-<a name="--ocodecode" class="anchor" href="#--ocodecode"><span class="octicon octicon-link"></span></a><strong>--ocode</strong>=<em>code</em>
-</h4>
+</li>
+<li>
+<p><strong>--ocode</strong>=<em>code</em></p>
 
 <p>Specify output code.  Default is utf8.</p>
-
-<h4>
-<a name="--needn" class="anchor" href="#--needn"><span class="octicon octicon-link"></span></a><strong>--need</strong>=<em>n</em>
-</h4>
-
-<h4>
-<a name="--allown" class="anchor" href="#--allown"><span class="octicon octicon-link"></span></a><strong>--allow</strong>=<em>n</em>
-</h4>
+</li>
+<li><p><strong>--need</strong>=<em>n</em></p></li>
+<li>
+<p><strong>--allow</strong>=<em>n</em></p>
 
 <p>Option to compromize matching condition.  Option <strong>--need</strong> specifies
 the required match count, and <strong>--allow</strong> the number of negative
@@ -603,9 +584,9 @@ condition to be overlooked.</p>
 <pre><code>greple --need=2 --allow=1 'foo bar baz -yabba -dabba -doo'
 </code></pre>
 
-<p>Above command prints the line which contains two or more from 'foo',
-'bar' and 'baz', and does not include more than one of 'yabba',
-'dabba' or 'doo'.</p>
+<p>Above command prints the line which contains two or more from `foo',
+`bar' and `baz', and does not include more than one of `yabba',
+`dabba' or `doo'.</p>
 
 <p>Using option <strong>--need</strong>=<em>1</em>, <strong>greple</strong> produces same result as <strong>grep</strong>
 command.</p>
@@ -616,9 +597,9 @@ greple --need=1 -e foo -e bar -e baz
 
 <p>When the count <em>n</em> is negative value, it is subtracted from maximum
 value.</p>
-
-<h4>
-<a name="--iffilter---ifexpfilterexpfilter" class="anchor" href="#--iffilter---ifexpfilterexpfilter"><span class="octicon octicon-link"></span></a><strong>--if</strong>=<em>filter</em>, <strong>--if</strong>=<em>EXP</em>:<em>filter</em>:<em>EXP</em>:<em>filter</em>:...</h4>
+</li>
+<li>
+<p><strong>--if</strong>=<em>filter</em>, <strong>--if</strong>=<em>EXP</em>:<em>filter</em>:<em>EXP</em>:<em>filter</em>:...</p>
 
 <p>You can specify filter command which is applied to each files before
 search.  If only one filter command is specified, it is applied to all
@@ -638,48 +619,48 @@ may be able to use special device:</p>
 </code></pre>
 
 <p>Filters for compressed and gzipped file is set by default unless
-<strong>--nodecompress</strong> option is given.  Default action is like this:</p>
+<strong>--noif</strong> option is given.  Default action is like this:</p>
 
 <pre><code>greple --if='s/\.Z$//:zcat:s/\.g?z$//:gunzip -c'
 </code></pre>
+</li>
+<li>
+<p><strong>--noif</strong></p>
 
-<h4>
-<a name="--offilter" class="anchor" href="#--offilter"><span class="octicon octicon-link"></span></a><strong>--of</strong>=<em>filter</em>
-</h4>
+<p>Disable default input filter.  Which means compressed files will not
+be decompressed automatically.</p>
+</li>
+<li>
+<p><strong>--of</strong>=<em>filter</em></p>
 
 <p>Specify output filter commands.</p>
-
-<h4>
-<a name="--requirefilename" class="anchor" href="#--requirefilename"><span class="octicon octicon-link"></span></a><strong>--require</strong>=<em>filename</em>
-</h4>
+</li>
+<li>
+<p><strong>--require</strong>=<em>filename</em></p>
 
 <p>Include arbitrary perl program.</p>
-
-<h4>
-<a name="--pgp" class="anchor" href="#--pgp"><span class="octicon octicon-link"></span></a><strong>--pgp</strong>
-</h4>
+</li>
+<li>
+<p><strong>--pgp</strong></p>
 
 <p>Invoke PGP decrypt command for files end with .pgp, .gpg or .asc.  PGP
 passphrase is asked only once at the beginning of command execution.</p>
-
-<h4>
-<a name="--pgppassphrase" class="anchor" href="#--pgppassphrase"><span class="octicon octicon-link"></span></a><strong>--pgppass</strong>=<em>phrase</em>
-</h4>
+</li>
+<li>
+<p><strong>--pgppass</strong>=<em>phrase</em></p>
 
 <p>You can specify PGP passphrase by this option.  Generally, it is not
 recommended to use.</p>
-
-<h4>
-<a name="--globpattern" class="anchor" href="#--globpattern"><span class="octicon octicon-link"></span></a><strong>--glob</strong>=<em>pattern</em>
-</h4>
+</li>
+<li>
+<p><strong>--glob</strong>=<em>pattern</em></p>
 
 <p>Get files matches to specified pattern and use them as a target files.
 Using <strong>--chdir</strong> and <strong>--glob</strong> makes easy to use <strong>greple</strong> for fixed
 common job.</p>
-
-<h4>
-<a name="--chdirdirectory" class="anchor" href="#--chdirdirectory"><span class="octicon octicon-link"></span></a><strong>--chdir</strong>=<em>directory</em>
-</h4>
+</li>
+<li>
+<p><strong>--chdir</strong>=<em>directory</em></p>
 
 <p>Change directory before processing files.  When multiple directories
 are specified in <strong>--chdir</strong> option, by using wildcard form or
@@ -688,14 +669,10 @@ directories.</p>
 
 <pre><code>greple --chdir '/usr/man/man?' --glob '*.[0-9]' ...
 </code></pre>
-
-<h4>
-<a name="--printfunction---printsub" class="anchor" href="#--printfunction---printsub"><span class="octicon octicon-link"></span></a><strong>--print</strong>=<em>function</em>, <strong>--print</strong>=<em>sub{...}</em>
-</h4>
-
-<h4>
-<a name="--continue" class="anchor" href="#--continue"><span class="octicon octicon-link"></span></a><strong>--continue</strong>
-</h4>
+</li>
+<li><p><strong>--print</strong>=<em>function</em>, <strong>--print</strong>=<em>sub{...}</em></p></li>
+<li>
+<p><strong>--continue</strong></p>
 
 <p>Specify user defined function executed before data print.  Text to be
 printed is replaced by the result of the funcion.  Arbitrary function
@@ -705,7 +682,7 @@ arguments.  Filename is passed by <code>file</code> key.  Matched informaiton is
 passed by <code>matched</code> key, in the form of perl array reference:
 <code>[[start,end],[start,end]...]</code>.</p>
 
-<p>Simplest function is <strong>--print</strong>='<em>sub{$</em>}_'.  Coloring capability can
+<p>Simplest function is <strong>--print</strong>='<em>sub{$\</em>}_'.  Coloring capability can
 be used like this:</p>
 
 <pre><code># ~/.greplerc
@@ -724,10 +701,9 @@ sub print_simple {
 
 <pre><code>greple --print=print_simple ...
 </code></pre>
-
-<h4>
-<a name="--readlist" class="anchor" href="#--readlist"><span class="octicon octicon-link"></span></a><strong>--readlist</strong>
-</h4>
+</li>
+<li>
+<p><strong>--readlist</strong></p>
 
 <p>Get filenames from standard input.  Read standard input and use each
 line as a filename for searching.  You can feed the output from other
@@ -736,34 +712,18 @@ searches string from files modified within 7 days:</p>
 
 <pre><code>find . -mtime -7 -print | greple --readlist pattern
 </code></pre>
-
-<h4>
-<a name="--man" class="anchor" href="#--man"><span class="octicon octicon-link"></span></a><strong>--man</strong>
-</h4>
+</li>
+<li>
+<p><strong>--man</strong></p>
 
 <p>Show manual page.</p>
-
-<h4>
-<a name="--norc" class="anchor" href="#--norc"><span class="octicon octicon-link"></span></a><strong>--norc</strong>
-</h4>
+</li>
+<li>
+<p><strong>--norc</strong></p>
 
 <p>Do not read startup file: <code>~/.greplerc</code>.</p>
-
-<h4>
-<a name="-d-flags" class="anchor" href="#-d-flags"><span class="octicon octicon-link"></span></a><strong>-d</strong> <em>flags</em>
-</h4>
-
-<p>Display informations.  Various kind of debug, diagnostic, monitor
-information can be display by giving appropriate flag to -d option.</p>
-
-<pre><code>f: processing file name
-s: statistic information
-m: misc debug information
-o: option related information
-p: run 'ps' command before termination (on Unix)
-</code></pre>
-
-<h1>
+</li>
+</ul><h1>
 <a name="environment-and-startup-file" class="anchor" href="#environment-and-startup-file"><span class="octicon octicon-link"></span></a>ENVIRONMENT and STARTUP FILE</h1>
 
 <p>Environment variable GREPLEOPTS is used as a default options.  They
@@ -772,10 +732,11 @@ are inserted before command line options.</p>
 <p>Before starting execution, <em>greple</em> reads the file named <code>.greplerc</code>
 on user's home directory.  Following directives can be used.</p>
 
-<h4>
-<a name="option-name-string" class="anchor" href="#option-name-string"><span class="octicon octicon-link"></span></a><strong>option</strong> <em>name</em> string</h4>
+<ul>
+<li>
+<p><strong>option</strong> <em>name</em> string</p>
 
-<p>Argument <em>name</em> of 'option' directive is user defined option name.
+<p>Argument <em>name</em> of `option' directive is user defined option name.
 The rest are processed by <em>shellwords</em> routine defined in
 Text::ParseWords module.  Be sure that this module sometimes requires
 escape backslashes.</p>
@@ -789,19 +750,18 @@ option --fromcomment --inside='(?s)\/\*.*?\*\/'
 
 <p>If the option named <strong>default</strong> is defined, it will be used as a
 default option.</p>
+</li>
+<li>
+<p><strong>help</strong> <em>name</em></p>
 
-<h4>
-<a name="help-name" class="anchor" href="#help-name"><span class="octicon octicon-link"></span></a><strong>help</strong> <em>name</em>
-</h4>
-
-<p>If 'help' directive is used for same option name, it will be printed
-in usage message.  If the help message is 'ignore', corresponding line
+<p>If `help' directive is used for same option name, it will be printed
+in usage message.  If the help message is `ignore', corresponding line
 won't show up in the usage.</p>
+</li>
+<li>
+<p><strong>define</strong> <em>name</em> string</p>
 
-<h4>
-<a name="define-name-string" class="anchor" href="#define-name-string"><span class="octicon octicon-link"></span></a><strong>define</strong> <em>name</em> string</h4>
-
-<p>Directive 'define' is almost same as 'option', but argument is not
+<p>Directive `define' is almost same as `option', but argument is not
 processed by <em>shellwords</em> and treated just a simple text.
 Metacharacters can be included without escaping.  Defined string
 replacement is done only in definition in option argument.  If you
@@ -811,8 +771,8 @@ want to use the word in command line, use option directive instead.</p>
 option --kanalist --color=never -o --join --re ':kana:[:kana:\n]+'
 help   --kanalist List up Katakana string
 </code></pre>
-
-<p>When <em>greple</em> found <code>__CODE__</code> line in <code>.greplerc</code> file, the rest
+</li>
+</ul><p>When <em>greple</em> found <code>__CODE__</code> line in <code>.greplerc</code> file, the rest
 of the file is evaluated as a Perl program.  You can define your own
 subroutines which can be used by <strong>--inside</strong> and <strong>--outside</strong> options.
 For those subroutines, file content will be provided by global
@@ -855,14 +815,11 @@ can be implemented both in function and macro.</p>
 
 <pre><code>package App::Greple::perl;
 
-
 BEGIN {
     use Exporter   ();
     our ($VERSION, @ISA, @EXPORT, @EXPORT_OK, %EXPORT_TAGS);
 
-
-    $VERSION = sprintf "%d.%03d", q$Revision: 6.15 $ =~ /(\d+)/g;
-
+    $VERSION = sprintf "%d.%03d", q$Revision: 6.20 $ =~ /(\d+)/g;
 
     @ISA         = qw(Exporter);
     @EXPORT      = qw(&amp;pod &amp;comment &amp;podcomment);
@@ -871,13 +828,10 @@ BEGIN {
 }
 our @EXPORT_OK;
 
-
 END { }
-
 
 my $pod_re = qr{^=\w+(?s:.*?)(?:\Z|^=cut\s*\n)}m;
 my $comment_re = qr{^(?:[ \t]*#.*\n)+}m;
-
 
 sub pod {
     my @list;
@@ -901,21 +855,16 @@ sub podcomment {
     @list;
 }
 
-
 1;
 
-
 __DATA__
-
 
 define :comment: ^(\s*#.*\n)+
 define :pod: ^=(?s:.*?)(?:\Z|^=cut\s*\n)
 
-
 #option --pod --inside :pod:
 #option --comment --inside :comment:
 #option --code --outside :pod:|:comment:
-
 
 option --pod --inside '&amp;pod'
 option --comment --inside '&amp;comment'
@@ -953,33 +902,20 @@ option interfaces, and change the command name. (2013.11)</p>
 <h1>
 <a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>LICENSE</h1>
 
-<p>Copyright (c) 1991-2013 Kazumasa Utashiro</p>
+<p>Copyright (c) 1991-2014 Kazumasa Utashiro</p>
 
 <p>Use and redistribution for ANY PURPOSE are granted as long as all
 copyright notices are retained.  Redistribution with modification is
 allowed provided that you make your modified version obviously
 distinguishable from the original one.  THIS SOFTWARE IS PROVIDED BY
-THE AUTHOR ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES ARE
+THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES ARE
 DISCLAIMED.</p>
-        </section>
-
-        <aside id="sidebar">
-          <a href="https://github.com/kaz-utashiro/greple/zipball/master" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/kaz-utashiro/greple/tarball/master" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
-
-          <p class="repo-owner"><a href="https://github.com/kaz-utashiro/greple"></a> is maintained by <a href="https://github.com/kaz-utashiro">kaz-utashiro</a>.</p>
-
-          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
-        </aside>
-      </div>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="http://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
     </div>
-
-  
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
   </body>
 </html>
