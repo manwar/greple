@@ -38,7 +38,7 @@
 <h1>
 <a name="synopsis" class="anchor" href="#synopsis"><span class="octicon octicon-link"></span></a>SYNOPSIS</h1>
 
-<p><strong>greple</strong> [<strong>-M</strong>_module_] [ <strong>-options</strong> ] pattern [ file... ]</p>
+<p><strong>greple</strong> [<strong>-M___module_] [ __-options</strong> ] pattern [ file... ]</p>
 
 <pre><code>pattern           'positive -negative ?alternative'
 
@@ -66,6 +66,7 @@
 --joinby=string      replace newline in the matched text by string
 --filestyle=style    how filename printed (once, separate, line)
 --linestyle=style    how line number printed (separate, line)
+--separate           set filestyle and linestyle both "separate"
 
 --need=n             required positive match count
 --allow=n            acceptable negative match count
@@ -88,7 +89,8 @@
 
 -f file              file contains search pattern
 -d flags             display info (f:file d:dir c:count m:misc s:stat)
---man                show manual page
+--man                display command or module manual page
+--show               display module file
 --icode=name         specify file encoding
 --ocode=name         specify output encoding
 --if=filter          set filter command
@@ -106,6 +108,9 @@
 
 <h1>
 <a name="description" class="anchor" href="#description"><span class="octicon octicon-link"></span></a>DESCRIPTION</h1>
+
+<h2>
+<a name="multiple-keywords" class="anchor" href="#multiple-keywords"><span class="octicon octicon-link"></span></a>MULTIPLE KEYWORDS</h2>
 
 <p><strong>greple</strong> has almost the same function as Unix command <a href="http://man.he.net/man1/egrep">egrep(1)</a> but
 the search is done in the manner similar to search engine.  For
@@ -148,20 +153,29 @@ greple '+foo +bar -yabba|dabba|doo'
 greple -e foo -e bar -v 'yabba|dabba|doo'
 </code></pre>
 
-<p><strong>LINE ACROSS MATCH</strong></p>
+<h2>
+<a name="line-across-match" class="anchor" href="#line-across-match"><span class="octicon octicon-link"></span></a>LINE ACROSS MATCH</h2>
 
 <p><strong>greple</strong> also search the pattern across the line boundaries.  This is
 especially useful to handle Asian multi-byte text.  Japanese text can
 be separated by newline almost any place of the text.  So the search
-pattern may spread out on multiple lines.  As for ascii text, space
-character in the pattern matches any kind of space including newline.
-Use <strong>-e</strong> option to use this capability because space is taken as a
-token separator in the bare pattern.</p>
+pattern may spread out on multiple lines.</p>
+
+<p>As for ascii text, space character in the pattern matches any kind of
+space including newline.  Next example will search the word sequence
+of `foo', `bar' and 'baz', even they spread out to multiple lines.</p>
+
+<pre><code>greple -e 'foo bar baz'
+</code></pre>
+
+<p>Option <strong>-e</strong> is necessary because space is taken as a token separator
+in the bare or <strong>--le</strong> pattern.</p>
 
 <h1>
 <a name="options" class="anchor" href="#options"><span class="octicon octicon-link"></span></a>OPTIONS</h1>
 
-<p><strong>PATTERNS</strong></p>
+<h2>
+<a name="patterns" class="anchor" href="#patterns"><span class="octicon octicon-link"></span></a>PATTERNS</h2>
 
 <p>If specific option is not provided, <strong>greple</strong> takes the first argument
 as a search pattern specified by <strong>-le</strong> option.  All of these patterns
@@ -235,14 +249,53 @@ characters.</p>
 
 <p>Specify fixed string pattern, like fgrep.</p>
 </li>
-</ul><p><strong>GREP LIKE OPTIONS</strong></p>
-
-<ul>
 <li>
-<p><strong>-i</strong></p>
+<p><strong>-i</strong>, <strong>--ignore-case</strong></p>
 
 <p>Ignore case.</p>
 </li>
+<li><p><strong>--need</strong>=<em>n</em></p></li>
+<li>
+<p><strong>--allow</strong>=<em>n</em></p>
+
+<p>Option to compromize matching condition.  Option <strong>--need</strong> specifies
+the required match count, and <strong>--allow</strong> the number of negative
+condition to be overlooked.</p>
+
+<pre><code>greple --need=2 --allow=1 'foo bar baz -yabba -dabba -doo'
+</code></pre>
+
+<p>Above command prints the line which contains two or more from `foo',
+`bar' and `baz', and does not include more than one of `yabba',
+`dabba' or `doo'.</p>
+
+<p>Using option <strong>--need</strong>=<em>1</em>, <strong>greple</strong> produces same result as <strong>grep</strong>
+command.</p>
+
+<pre><code>grep -e foo -e bar -e baz
+greple --need=1 -e foo -e bar -e baz
+</code></pre>
+
+<p>When the count <em>n</em> is negative value, it is subtracted from maximum
+value.</p>
+</li>
+<li>
+<p><strong>-f</strong> <em>file</em>, <strong>--file</strong>=<em>file</em></p>
+
+<p>Specify the file which contains search pattern.  When file contains
+multiple lines, patterns on each lines are search in OR context.</p>
+
+<p>Blank line and the line starting with sharp (#) character is ignored.
+Two slashes (//) and following string are taken as a comment and
+removed with preceding spaces.</p>
+
+<p>Multiple file can be specified, but they will be mixed into single
+pattern.</p>
+</li>
+</ul><h2>
+<a name="styles" class="anchor" href="#styles"><span class="octicon octicon-link"></span></a>STYLES</h2>
+
+<ul>
 <li>
 <p><strong>-l</strong></p>
 
@@ -254,7 +307,7 @@ characters.</p>
 <p>Print count of matched block.</p>
 </li>
 <li>
-<p><strong>-n</strong></p>
+<p><strong>-n</strong>, <strong>--line-number</strong></p>
 
 <p>Show line number.</p>
 </li>
@@ -280,8 +333,8 @@ characters.</p>
 <p><strong>-C</strong>[<em>n</em>], <strong>--context</strong>[=<em>n</em>]</p>
 
 <p>Print <em>n</em>-blocks before/after matched string.  The value <em>n</em> can be
-omitted and the default is 2.  When used with paragraph option <strong>-p</strong>,
-<em>n</em> means number of paragraphs.</p>
+omitted and the default is 2.  When used with <strong>--paragraph</strong> or
+<strong>--block</strong> option, <em>n</em> means number of paragraph or block.</p>
 
 <p>Actually, these options expand the area of logical operation.  It
 means</p>
@@ -304,13 +357,78 @@ baz
 <p>also matches this text, because matching blocks around `foo' and `bar'
 overlaps each other and makes single block.</p>
 </li>
+<li><p><strong>--join</strong></p></li>
 <li>
-<p><strong>-f</strong> <em>file</em>, <strong>--file</strong>=<em>file</em></p>
+<p><strong>--joinby</strong>=<em>string</em></p>
 
-<p>Specify the file which contains search pattern.  When file contains
-multiple lines, patterns on each lines are search in OR context.  The
-line starting with sharp (#) character is ignored.</p>
+<p>Convert newline character found in matched string to empty or specifed
+<em>string</em>.  Using <strong>--join</strong> with <strong>-o</strong> (only-matching) option, you can
+collect searching sentence list in one per line form.  This is almost
+useless for English text but sometimes useful for Japanese text.  For
+example, next command prints the list of KATAKANA words.</p>
+
+<pre><code>greple -ho --join '\p{utf8::InKatakana}[\n\p{utf8::InKatakana}]*'
+</code></pre>
 </li>
+<li>
+<p><strong>--filestyle</strong>=<em>line</em>|<em>once</em>|<em>separate</em>, <strong>--fs</strong></p>
+
+<p>Default style is <em>line</em>, and <strong>greple</strong> prints filename at the
+beginning of each line.  Style <em>once</em> prints the filename only once
+at the first time.  Style <em>separate</em> prints filename in the separate
+line before each line or block.</p>
+</li>
+<li>
+<p><strong>--linestyle</strong>=<em>line</em>|<em>separate</em>, <strong>--ls</strong></p>
+
+<p>Default style is <em>line</em>, and <strong>greple</strong> prints line numbers at the
+beginning of each line.  Style <em>separate</em> prints line number in the
+separate line before each line or block.</p>
+</li>
+<li>
+<p><strong>--separate</strong></p>
+
+<p>Shortcut for <strong>--filestyle</strong>=<em>separate</em> <strong>--linestyle</strong>=<em>separate</em>.
+This is convenient to use block mode search and visiting each location
+from supporting tool, such as Emacs.</p>
+</li>
+</ul><h2>
+<a name="files" class="anchor" href="#files"><span class="octicon octicon-link"></span></a>FILES</h2>
+
+<ul>
+<li>
+<p><strong>--glob</strong>=<em>pattern</em></p>
+
+<p>Get files matches to specified pattern and use them as a target files.
+Using <strong>--chdir</strong> and <strong>--glob</strong> makes easy to use <strong>greple</strong> for fixed
+common job.</p>
+</li>
+<li>
+<p><strong>--chdir</strong>=<em>directory</em></p>
+
+<p>Change directory before processing files.  When multiple directories
+are specified in <strong>--chdir</strong> option, by using wildcard form or
+repeating option, <strong>--glob</strong> file expantion will be done for every
+directories.</p>
+
+<pre><code>greple --chdir '/usr/man/man?' --glob '*.[0-9]' ...
+</code></pre>
+</li>
+<li>
+<p><strong>--readlist</strong></p>
+
+<p>Get filenames from standard input.  Read standard input and use each
+line as a filename for searching.  You can feed the output from other
+command like <a href="http://man.he.net/man1/find">find(1)</a> for <strong>greple</strong> with this option.  Next example
+searches string from files modified within 7 days:</p>
+
+<pre><code>find . -mtime -7 -print | greple --readlist pattern
+</code></pre>
+</li>
+</ul><h2>
+<a name="colors" class="anchor" href="#colors"><span class="octicon octicon-link"></span></a>COLORS</h2>
+
+<ul>
 <li>
 <p><strong>--color</strong>=<em>auto</em>|<em>always</em>|<em>never</em>, <strong>--nocolor</strong></p>
 
@@ -375,21 +493,12 @@ show word `foo' in red, `bar' in green and `baz' in blue.</p>
 <p>Shortcut for <strong>--colormode</strong>='<em>RD GD BD CD MD YD</em>'</p>
 </li>
 <li>
-<p><strong>--filestyle</strong>=<em>style</em>, <strong>--fs</strong></p>
+<p><strong>--regioncolor</strong></p>
 
-<p>Default style is <em>line</em>, and <strong>greple</strong> prints filename at the
-beginning of each line.  Style <em>once</em> prints the filename only once
-at the first time.  Style <em>separate</em> prints filename in the separate
-line before each line or block.</p>
+<p>Use different colors for each <strong>--inside</strong>/<strong>outside</strong> regions.</p>
 </li>
-<li>
-<p><strong>--linestyle</strong>=<em>style</em>, <strong>--ls</strong></p>
-
-<p>Default style is <em>line</em>, and <strong>greple</strong> prints line numbers at the
-beginning of each line.  Style <em>separate</em> prints line number in the
-separate line before each line or block.</p>
-</li>
-</ul><p><strong>OTHER OPTIONS</strong></p>
+</ul><h2>
+<a name="blocks" class="anchor" href="#blocks"><span class="octicon octicon-link"></span></a>BLOCKS</h2>
 
 <ul>
 <li>
@@ -422,7 +531,8 @@ identical to following command.</p>
 
 <p>Specify the record block to display.  Default block is a single line.</p>
 
-<p>Next is almost same as <strong>--paragraph</strong> option.</p>
+<p>Next example behave almost same as <strong>--paragraph</strong> option, but is less
+efficient.</p>
 
 <pre><code>greple --block='(.+\n)+'
 </code></pre>
@@ -447,7 +557,13 @@ because it finds all blocks before processing.</p>
 <p>Change the end mark displayed after <strong>-pABC</strong> or <strong>--block</strong> options.
 Default value is "--\n".</p>
 </li>
-<li><p><strong>--inside</strong>=<em>pattern</em></p></li>
+</ul><h2>
+<a name="regions" class="anchor" href="#regions"><span class="octicon octicon-link"></span></a>REGIONS</h2>
+
+<ul>
+<li>
+<strong>--inside</strong>=<em>pattern</em>
+</li>
 <li>
 <p><strong>--outside</strong>=<em>pattern</em></p>
 
@@ -519,8 +635,9 @@ then remove unnecessary part by <strong>--include</strong>/<strong>exclude</stro
 
 <p>Limit the match area strictly.</p>
 
-<p>By default, <strong>--block</strong>, <strong>--inside</strong>, <strong>--outside</strong> option allows
-partial match within the specified area.  For instance,</p>
+<p>By default, <strong>--block</strong>, <strong>--inside</strong>/<strong>outside</strong>,
+<strong>--include</strong>/<strong>exclude</strong> option allows partial match within the
+specified area.  For instance,</p>
 
 <pre><code>greple --inside and command
 </code></pre>
@@ -530,19 +647,10 @@ included in specified inside-area.  Partial match failes when option
 <strong>--strict</strong> provided, and longer string never matches within shorter
 area.</p>
 </li>
-<li><p><strong>--join</strong></p></li>
-<li>
-<p><strong>--joinby</strong>=<em>string</em></p>
+</ul><h2>
+<a name="character-code" class="anchor" href="#character-code"><span class="octicon octicon-link"></span></a>CHARACTER CODE</h2>
 
-<p>Convert newline character found in matched string to empty or specifed
-<em>string</em>.  Using <strong>--join</strong> with <strong>-o</strong> (only-matching) option, you can
-collect searching sentence list in one per line form.  This is almost
-useless for English text but sometimes useful for Japanese text.  For
-example, next command prints the list of KATAKANA words.</p>
-
-<pre><code>greple -ho --join '\p{utf8::InKatakana}[\n\p{utf8::InKatakana}]*'
-</code></pre>
-</li>
+<ul>
 <li>
 <p><strong>--icode</strong>=<em>code</em></p>
 
@@ -573,31 +681,10 @@ and UTF-16/32.</p>
 
 <p>Specify output code.  Default is utf8.</p>
 </li>
-<li><p><strong>--need</strong>=<em>n</em></p></li>
-<li>
-<p><strong>--allow</strong>=<em>n</em></p>
+</ul><h2>
+<a name="filter" class="anchor" href="#filter"><span class="octicon octicon-link"></span></a>FILTER</h2>
 
-<p>Option to compromize matching condition.  Option <strong>--need</strong> specifies
-the required match count, and <strong>--allow</strong> the number of negative
-condition to be overlooked.</p>
-
-<pre><code>greple --need=2 --allow=1 'foo bar baz -yabba -dabba -doo'
-</code></pre>
-
-<p>Above command prints the line which contains two or more from `foo',
-`bar' and `baz', and does not include more than one of `yabba',
-`dabba' or `doo'.</p>
-
-<p>Using option <strong>--need</strong>=<em>1</em>, <strong>greple</strong> produces same result as <strong>grep</strong>
-command.</p>
-
-<pre><code>grep -e foo -e bar -e baz
-greple --need=1 -e foo -e bar -e baz
-</code></pre>
-
-<p>When the count <em>n</em> is negative value, it is subtracted from maximum
-value.</p>
-</li>
+<ul>
 <li>
 <p><strong>--if</strong>=<em>filter</em>, <strong>--if</strong>=<em>EXP</em>:<em>filter</em>:<em>EXP</em>:<em>filter</em>:...</p>
 
@@ -635,44 +722,12 @@ be decompressed automatically.</p>
 
 <p>Specify output filter commands.</p>
 </li>
-<li>
-<p><strong>--require</strong>=<em>filename</em></p>
+</ul><h2>
+<a name="print" class="anchor" href="#print"><span class="octicon octicon-link"></span></a>PRINT</h2>
 
-<p>Include arbitrary perl program.</p>
-</li>
+<ul>
 <li>
-<p><strong>--pgp</strong></p>
-
-<p>Invoke PGP decrypt command for files end with .pgp, .gpg or .asc.  PGP
-passphrase is asked only once at the beginning of command execution.</p>
-</li>
-<li>
-<p><strong>--pgppass</strong>=<em>phrase</em></p>
-
-<p>You can specify PGP passphrase by this option.  Generally, it is not
-recommended to use.</p>
-</li>
-<li>
-<p><strong>--glob</strong>=<em>pattern</em></p>
-
-<p>Get files matches to specified pattern and use them as a target files.
-Using <strong>--chdir</strong> and <strong>--glob</strong> makes easy to use <strong>greple</strong> for fixed
-common job.</p>
-</li>
-<li>
-<p><strong>--chdir</strong>=<em>directory</em></p>
-
-<p>Change directory before processing files.  When multiple directories
-are specified in <strong>--chdir</strong> option, by using wildcard form or
-repeating option, <strong>--glob</strong> file expantion will be done for every
-directories.</p>
-
-<pre><code>greple --chdir '/usr/man/man?' --glob '*.[0-9]' ...
-</code></pre>
-</li>
-<li><p><strong>--print</strong>=<em>function</em>, <strong>--print</strong>=<em>sub{...}</em></p></li>
-<li>
-<p><strong>--continue</strong></p>
+<p><strong>--print</strong>=<em>function</em>, <strong>--print</strong>=<em>sub{...}</em></p>
 
 <p>Specify user defined function executed before data print.  Text to be
 printed is replaced by the result of the funcion.  Arbitrary function
@@ -703,25 +758,54 @@ sub print_simple {
 </code></pre>
 </li>
 <li>
-<p><strong>--readlist</strong></p>
+<p><strong>--continue</strong></p>
 
-<p>Get filenames from standard input.  Read standard input and use each
-line as a filename for searching.  You can feed the output from other
-command like <a href="http://man.he.net/man1/find">find(1)</a> for <strong>greple</strong> with this option.  Next example
-searches string from files modified within 7 days:</p>
+<p>When <strong>--print</strong> option is given, <strong>greple</strong> will immediately print the
+result returned from print function and finish the cycle.  Option
+<strong>--continue</strong> forces to continue normal printing process after print
+function called.  So please be sure that all data being consistent.</p>
+</li>
+</ul><h2>
+<a name="pgp" class="anchor" href="#pgp"><span class="octicon octicon-link"></span></a>PGP</h2>
 
-<pre><code>find . -mtime -7 -print | greple --readlist pattern
-</code></pre>
+<ul>
+<li>
+<p><strong>--pgp</strong></p>
+
+<p>Invoke PGP decrypt command for files end with <em>.pgp</em>, <em>.gpg</em> or
+<em>.asc</em>.  PGP passphrase is asked only once at the beginning of
+command execution.</p>
 </li>
 <li>
-<p><strong>--man</strong></p>
+<p><strong>--pgppass</strong>=<em>phrase</em></p>
 
-<p>Show manual page.</p>
+<p>You can specify PGP passphrase by this option.  Generally, it is not
+recommended to use.</p>
 </li>
+</ul><h2>
+<a name="others" class="anchor" href="#others"><span class="octicon octicon-link"></span></a>OTHERS</h2>
+
+<ul>
 <li>
 <p><strong>--norc</strong></p>
 
 <p>Do not read startup file: <code>~/.greplerc</code>.</p>
+</li>
+<li>
+<p><strong>--man</strong></p>
+
+<p>Show manual page.
+Display module's manual page when used with <strong>-M</strong> option.</p>
+</li>
+<li>
+<p><strong>--show</strong></p>
+
+<p>Show module file contents.  Use with <strong>-M</strong> option.</p>
+</li>
+<li>
+<p><strong>--require</strong>=<em>filename</em></p>
+
+<p>Include arbitrary perl program.</p>
 </li>
 </ul><h1>
 <a name="environment-and-startup-file" class="anchor" href="#environment-and-startup-file"><span class="octicon octicon-link"></span></a>ENVIRONMENT and STARTUP FILE</h1>
@@ -772,15 +856,22 @@ option --kanalist --color=never -o --join --re ':kana:[:kana:\n]+'
 help   --kanalist List up Katakana string
 </code></pre>
 </li>
-</ul><p>When <em>greple</em> found <code>__CODE__</code> line in <code>.greplerc</code> file, the rest
+</ul><p>Environment variable substitution is done for string specified by
+`option' and `define' directivies.  Use Perl syntax <strong>$ENV{NAME}</strong> for
+this purpose.  You can use this to make a portable module.</p>
+
+<p>When <em>greple</em> found <code>__CODE__</code> line in <code>.greplerc</code> file, the rest
 of the file is evaluated as a Perl program.  You can define your own
-subroutines which can be used by <strong>--inside</strong> and <strong>--outside</strong> options.
-For those subroutines, file content will be provided by global
+subroutines which can be used by <strong>--inside</strong>/<strong>outside</strong>,
+<strong>--include</strong>/<strong>exclude</strong>, <strong>--block</strong> options.</p>
+
+<p>For those subroutines, file content will be provided by global
 variable <code>$_</code>.  Expected response from the subroutine is the list of
 array references, which is made up by start and end offset pairs.</p>
 
 <p>For example, suppose that the following function is defined in your
-<code>.greplerc</code> file.</p>
+<code>.greplerc</code> file.  Start and end offset for each pattern match can be
+taken as array element <code>$-[0]</code> and <code>$+[0]</code>.</p>
 
 <pre><code>__CODE__
 sub odd_line {
@@ -803,11 +894,15 @@ lines.</p>
 <a name="module" class="anchor" href="#module"><span class="octicon octicon-link"></span></a>MODULE</h1>
 
 <p>Modules can be specified only at the beginning of command line by
-<strong>-M</strong>_module_ option.  Name <em>module</em> is prepended by <strong>App::Greple</strong>,
+<strong>-M___module_ option.  Name <em>module</em> is prepended by __App::Greple</strong>,
 so place the module file in <code>App/Greple/</code> directory in Perl library.</p>
 
 <p>If the package name is declared properly, <code>__DATA__</code> section in the
 module file will be interpreted same as <code>.greplerc</code> file content.</p>
+
+<p>Using <strong>-M</strong> without module argument will print available module list.
+Option <strong>--man</strong> will display module document when used with <strong>-M</strong>
+option.  Use <strong>--show</strong> option to see the module itself.</p>
 
 <p>See this sample module code.  This sample define options to search
 from pod, comment and other segment in Perl script.  Those capability
@@ -819,7 +914,7 @@ BEGIN {
     use Exporter   ();
     our ($VERSION, @ISA, @EXPORT, @EXPORT_OK, %EXPORT_TAGS);
 
-    $VERSION = sprintf "%d.%03d", q$Revision: 6.20 $ =~ /(\d+)/g;
+    $VERSION = sprintf "%d.%03d", q$Revision: 6.21 $ =~ /(\d+)/g;
 
     @ISA         = qw(Exporter);
     @EXPORT      = qw(&amp;pod &amp;comment &amp;podcomment);
