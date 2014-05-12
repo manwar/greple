@@ -40,70 +40,77 @@
 
 <p><strong>greple</strong> [<strong>-M___module_] [ __-options</strong> ] pattern [ file... ]</p>
 
-<pre><code>pattern           'positive -negative ?alternative'
-
--e pattern        regex pattern match across line boundary
--v pattern        regex pattern not to be matched
---le pattern      lexical expression (same as bare pattern)
---re pattern      regular expression
---fe pattern      fixed expression
-</code></pre>
-
-<p><strong>OPTIONS</strong></p>
-
-<pre><code>-i                   ignore case
--l                   list filename only
--c                   print count of matched block only
--n                   print line number
--h                   do not display filenames
--H                   always display filenames
---inside=pattern     select matches inside of pattern
---outside=pattern    select matches outside of pattern
---include=pattern    reduce matches to the area
---exclude=pattern    reduce matches to outside of the area
---strict             strict mode for --inside/outside --block
---join               delete newline in the matched part
---joinby=string      replace newline in the matched text by string
---filestyle=style    how filename printed (once, separate, line)
---linestyle=style    how line number printed (separate, line)
---separate           set filestyle and linestyle both "separate"
-
---need=n             required positive match count
---allow=n            acceptable negative match count
-
---color=when         use terminal color (auto, always, never)
---nocolor            same as --color=never
---colormode=mode     R, G, B, C, M, Y, W, Standout, bolD, Underline
---colorful           same as --colormode 'RD GD BD CD MD YD'
---random             random color
---regioncolor        color by region
-
--o                   print only the matching part
--p                   paragraph mode
--A[n]                after match context
--B[n]                before match context
--C[n]                after and before match context
---all                print whole data
---block=pattern      specify the block of records
---blockend=s         specify the block end mark (Default: "--\n")
-
--f file              file contains search pattern
--d flags             display info (f:file d:dir c:count m:misc s:stat)
---man                display command or module manual page
---show               display module file
---icode=name         specify file encoding
---ocode=name         specify output encoding
---if=filter          set filter command
---of=filter          output filter command
---noif               disable default input filter
---[no]pgp            decrypt and find PGP file (Default: false)
---pgppass=phrase     pgp passphrase
---readlist           get filenames from stdin
---chdir              change directory before search
---glob=glob          glob target files
---print=func         print function
---continue           continue after print function
---norc               skip reading startup file
+<pre><code>PATTERN
+  pattern              'positive +must -negative ?alternative'
+  -e pattern           regex pattern match across line boundary
+  -r pattern           regex pattern cannot be compromised
+  -v pattern           regex pattern not to be matched
+  --le pattern         lexical expression (same as bare pattern)
+  --re pattern         regular expression
+  --fe pattern         fixed expression
+  --file file          file contains search pattern
+MATCH
+  -i                   ignore case
+  --need=[+-]n         required positive match count
+  --allow=[+-]n        acceptable negative match count
+STYLE
+  -l                   list filename only
+  -c                   print count of matched block only
+  -n                   print line number
+  -h                   do not display filenames
+  -H                   always display filenames
+  -o                   print only the matching part
+  -A[n]                after match context
+  -B[n]                before match context
+  -C[n]                after and before match context
+  --join               delete newline in the matched part
+  --joinby=string      replace newline in the matched text by string
+  --filestyle=style    how filename printed (once, separate, line)
+  --linestyle=style    how line number printed (separate, line)
+  --separate           set filestyle and linestyle both "separate"
+FILE
+  --glob=glob          glob target files
+  --chdir              change directory before search
+  --readlist           get filenames from stdin
+COLOR
+  --color=when         use terminal color (auto, always, never)
+  --nocolor            same as --color=never
+  --colormap=color     R, G, B, C, M, Y, W, Standout, Double-struck, Underline
+  --colorful           use default multiple colors
+  --[no]256            use ANSI 256 colors
+  --regioncolor        use different color for inside/outside regions
+  --random             random color
+  --face
+BLOCK
+  -p                   paragraph mode
+  --all                print whole data
+  --block=pattern      specify the block of records
+  --blockend=s         specify the block end mark (Default: "--\n")
+REGION
+  --inside=pattern     select matches inside of pattern
+  --outside=pattern    select matches outside of pattern
+  --include=pattern    reduce matches to the area
+  --exclude=pattern    reduce matches to outside of the area
+  --strict             strict mode for --inside/outside --block
+CHARACTER CODE
+  --icode=name         specify file encoding
+  --ocode=name         specify output encoding
+FILTER
+  --if=filter          set filter command
+  --of=filter          output filter command
+  --noif               disable default input filter
+RUNTIME FUNCTION
+  --print=func         print function
+  --continue           continue after print function
+  --call=func          call function before search
+PGP
+  --[no]pgp            decrypt and find PGP file (Default: false)
+  --pgppass=phrase     pgp passphrase
+OTHER
+  --norc               skip reading startup file
+  --man                display command or module manual page
+  --show               display module file
+  -d flags             display info (f:file d:dir c:color m:misc s:stat)
 </code></pre>
 
 <h1>
@@ -140,17 +147,30 @@ and `baz' and one or more from `yabba', `dabba' or `doo'.</p>
 
 <p>NOT operator can be specified by prefixing the token by minus (`-')
 sign.  Next example will show the line which contain both `foo' and
-bar' but none of `yabba' or `dabba' or `doo'.  It is ok to put `+'
-mark for positive matching pattern.</p>
+bar' but none of `yabba' or `dabba' or `doo'.</p>
 
 <pre><code>greple 'foo bar -yabba -dabba -doo'
-greple '+foo +bar -yabba|dabba|doo'
 </code></pre>
 
 <p>This can be written as this using <strong>-e</strong> and <strong>-v</strong> option.</p>
 
 <pre><code>greple -e foo -e bar -v yabba -v dabba -v doo
 greple -e foo -e bar -v 'yabba|dabba|doo'
+</code></pre>
+
+<p>If `+' is placed to positive matching pattern, that pattern is marked
+as required, and match required count is automatically set to the
+number of required pattern.  So</p>
+
+<pre><code>greple '+foo bar baz'
+</code></pre>
+
+<p>commands implicitly set the option <code>--need 1</code>, and consequently print
+all lines including `foo'.  If you want to search lines which includes
+either or both of `bar' and `baz', use like this:</p>
+
+<pre><code>greple '+foo bar baz' --need 2
+greple '+foo bar baz' --need +1
 </code></pre>
 
 <h2>
@@ -182,7 +202,16 @@ as a search pattern specified by <strong>-le</strong> option.  All of these patt
 can be specified multiple times.</p>
 
 <p>Command itself is written in Perl, and any kind of Perl style regular
-expression can be used in patterns.</p>
+expression can be used in patterns.  See <a href="http://man.he.net/man1/perlre">perlre(1)</a> for detail.</p>
+
+<p>Note that multiple line modifier (<code>m</code>) is set when executed, so put
+<code>(?-m)</code> at the beginning of regex if you wat to explicitly disable
+it.</p>
+
+<p>Order of capture group in the pattern is not guaranteed.  Please avoid
+to use direct index, and use relative or named capture group instead.
+For example, repated character can be written as <code>(\w)\g{-1}</code>
+or <code>(?&lt;c&gt;\w)\g{c}</code>.</p>
 
 <ul>
 <li>
@@ -190,8 +219,7 @@ expression can be used in patterns.</p>
 
 <p>Treat the string as a collection of tokens separated by spaces.  Each
 token is interpreted by the first character.  Token start with `-'
-means negative pattern, `?' means alternative, optional `+' and
-anything other means positive match.</p>
+means negative pattern, `?' means alternative, and `+' does required.</p>
 
 <p>Next example print lines which contains `foo' and `bar', and one or
 more of `yabba' and 'dabba', and none of `bar' and `doo'.</p>
@@ -225,6 +253,15 @@ multiple lines.  Next commands search the series of word `foo', `bar'
 and `baz' even if they are separated by newlines.</p>
 
 <pre><code>greple -e 'foo bar baz'
+</code></pre>
+</li>
+<li>
+<p><strong>-r</strong> <em>pattern</em>, <strong>--must</strong>=<em>pattern</em></p>
+
+<p>Specify required match token.  Next two commands are equivalent.</p>
+
+<pre><code>greple '+foo bar baz'
+greple -r foo -e bar -e baz
 </code></pre>
 </li>
 <li>
@@ -276,7 +313,7 @@ command.</p>
 greple --need=1 -e foo -e bar -e baz
 </code></pre>
 
-<p>When the count <em>n</em> is negative value, it is subtracted from maximum
+<p>When the count <em>n</em> is negative value, it is subtracted from default
 value.</p>
 </li>
 <li>
@@ -363,11 +400,19 @@ overlaps each other and makes single block.</p>
 
 <p>Convert newline character found in matched string to empty or specifed
 <em>string</em>.  Using <strong>--join</strong> with <strong>-o</strong> (only-matching) option, you can
-collect searching sentence list in one per line form.  This is almost
-useless for English text but sometimes useful for Japanese text.  For
-example, next command prints the list of KATAKANA words.</p>
+collect searching sentence list in one per line form.  This is
+sometimes useful for Japanese text processing.  For example, next
+command prints the list of KATAKANA words, including those spread
+across multiple lines.</p>
 
-<pre><code>greple -ho --join '\p{utf8::InKatakana}[\n\p{utf8::InKatakana}]*'
+<pre><code>greple -ho --join '\p{InKatakana}+(\n\p{InKatakana}+)*'
+</code></pre>
+
+<p>Space separated word sequence can be processed with <strong>--joinby</strong>
+option.  Next exapmle prints all `for *something*' pattern in pod
+documents within Perl script.</p>
+
+<pre><code>greple -Mperl --pod -ioe '\bfor \w+' --joinby ' '
 </code></pre>
 </li>
 <li>
@@ -440,9 +485,9 @@ expected.</p>
 <p>Option <strong>--nocolor</strong> is alias for <strong>--color</strong>=<em>never</em>.</p>
 </li>
 <li>
-<p><strong>--colormode</strong>=<em>RGBCYMKWrgbcymkwSUDF</em>, <strong>--quote</strong>=<em>start</em>,<em>end</em></p>
+<p><strong>--colormap</strong>=<em>RGBCYMKWrgbcymkwSUDF</em>, <strong>--quote</strong>=<em>start</em>,<em>end</em></p>
 
-<p>Specify color mode.  Default is RD: RED and BOLD.</p>
+<p>Specify color map.  Default is RD: RED and BOLD.</p>
 
 <p>COLOR is combination of single character representing uppercase
 foreground color :</p>
@@ -462,6 +507,22 @@ W  White
 <pre><code>r, g, b, c, m, y, k, w
 </code></pre>
 
+<p>or RGB value if using ANSI 256 color terminal :</p>
+
+<pre><code>FORMAT:
+    foreground[/background]
+
+COLOR:
+    000 .. 555       : 6 x 6 x 6 216 colors
+    000000 .. FFFFFF : 24bit RGB mapped to 216 colors
+
+Sample:
+    005     0000FF        : blue foreground
+       /505       /FF00FF : magenta background
+    000/555 000000/FFFFFF : black on white
+    500/050 FF0000/00FF00 : red on green
+</code></pre>
+
 <p>and other effects :</p>
 
 <pre><code>S  Standout (reverse video)
@@ -470,32 +531,70 @@ D  Double-struck (boldface)
 F  Flash (blink)
 </code></pre>
 
-<p>If the mode string contains comma `,' character, they are used to
+<p>If the mode string contains colon `:' character, they are used to
 quote the matched string.  If you want to quote the pattern by angle
 bracket, use like this.</p>
 
-<pre><code>greple --quote='&lt;,&gt;' pattern
+<pre><code>greple --quote='&lt;:&gt;' pattern
 </code></pre>
 
-<p>Option <strong>--quote</strong> is an alias for <strong>--colormode</strong>, but it set the
+<p>Option <strong>--quote</strong> is an alias for <strong>--colormap</strong>, but it set the
 option <strong>--color</strong>=<em>always</em> at the same time.</p>
 
-<p>Multiple colors can be specified separating by white spaces.  Those
-colors will be applied for each pattern keywords.  Next command will
-show word `foo' in red, `bar' in green and `baz' in blue.</p>
+<p>Multiple colors can be specified separating by white space or comma,
+or by repeating options.  Those colors will be applied for each
+pattern keywords.  Next command will show word `foo' in red, `bar' in
+green and `baz' in blue.</p>
 
-<pre><code>greple --colormode='R G B' 'foo bar baz' ...
+<pre><code>greple --colormap='R G B' 'foo bar baz'
+
+greple --cm R -e foo --cm G -e bar --cm B -e baz
 </code></pre>
 </li>
 <li>
-<p><strong>--colorful</strong></p>
+<p><strong>--colormap</strong>=<em>field</em>=<em>color</em>,<em>field</em>=<em>color</em>,...</p>
 
-<p>Shortcut for <strong>--colormode</strong>='<em>RD GD BD CD MD YD</em>'</p>
+<p>Another form of colormap option to specify the color for fields:</p>
+
+<pre><code>FILE      File name
+LINE      Line number
+BLOCKEND  Block end mark
+</code></pre>
+</li>
+<li>
+<p><strong>--[no]colorful</strong></p>
+
+<p>Shortcut for <strong>--colormap</strong>='<em>RD GD BD CD MD YD</em>' in ANSI 16 colors
+mode, and <strong>--colormap</strong>='<em>D/544 D/454 D/445 D/455 D/454 D/554</em>' and
+other combination of 3, 4, 5 for 256 colors mode.  Enabled by default.</p>
+</li>
+<li>
+<p><strong>--[no]256</strong></p>
+
+<p>Set/unset ANSI 256 color mode.  Enabled by default.</p>
 </li>
 <li>
 <p><strong>--regioncolor</strong></p>
 
-<p>Use different colors for each <strong>--inside</strong>/<strong>outside</strong> regions.</p>
+<p>Use different colors for each <strong>--inside</strong>/<strong>outside</strong> regions.
+Disabled by default.</p>
+</li>
+<li>
+<p><strong>--face</strong>=[-+]<em>effect</em></p>
+
+<p>Set or unset specified <em>effect</em> for all color specs.  Use `+'
+(optional) to set, and `-' to unset.  Effect is a single character
+expressing: S (Standout), U (Underline), D (Double-struck), F (Flash).</p>
+
+<p>Next example romove D (double-struck) effect.</p>
+
+<pre><code>greple --face -D
+</code></pre>
+
+<p>Multiple effects can be set/unset at once.</p>
+
+<pre><code>greple --face SF-D
+</code></pre>
 </li>
 </ul><h2>
 <a name="blocks" class="anchor" href="#blocks"><span class="octicon octicon-link"></span></a>BLOCKS</h2>
@@ -723,7 +822,7 @@ be decompressed automatically.</p>
 <p>Specify output filter commands.</p>
 </li>
 </ul><h2>
-<a name="print" class="anchor" href="#print"><span class="octicon octicon-link"></span></a>PRINT</h2>
+<a name="runtime-functions" class="anchor" href="#runtime-functions"><span class="octicon octicon-link"></span></a>RUNTIME FUNCTIONS</h2>
 
 <ul>
 <li>
@@ -746,7 +845,7 @@ sub print_simple {
     my %attr = @_;
     for my $r (reverse @{$attr{matched}}) {
         my($s, $e) = @$r;
-        substr($_, $s, $e - $s) = color(substr($_, $s, $e - $s));
+        substr($_, $s, $e - $s, color('B', substr($_, $s, $e - $s)));
     }
     $_;
 }
@@ -756,6 +855,10 @@ sub print_simple {
 
 <pre><code>greple --print=print_simple ...
 </code></pre>
+
+<p>It is possible to use multiple <strong>--print</strong> options.  In that case,
+second function will get the result of the first function.  The
+command will print the final result of the last funciton.</p>
 </li>
 <li>
 <p><strong>--continue</strong></p>
@@ -765,7 +868,51 @@ result returned from print function and finish the cycle.  Option
 <strong>--continue</strong> forces to continue normal printing process after print
 function called.  So please be sure that all data being consistent.</p>
 </li>
-</ul><h2>
+<li><p><strong>--call</strong>=<em>function</em>(<em>...</em>), <strong>--call</strong>=<em>function</em>=<em>...</em></p></li>
+<li>
+<p>__-M___module_::<em>function(...)</em>, __-M___module_::<em>function=...</em></p>
+
+<p>Option <strong>--call</strong> specify the function executed at the beginning of
+each file processing.  This <em>function</em> have to be called from <strong>main</strong>
+package.  So if you define the function in the module package, use the
+full package name or export properly.</p>
+
+<p>It can be set with module option, following module name.  In this
+form, the function will be called with module package name.  So you
+don't have to export it.</p>
+</li>
+</ul><p>For these run-time functions, optional argument list can be set in the
+form of <code>key</code> or <code>key=value</code>, connected by comma.  These arguments
+will be passed to the funciton in key =&gt; value list.  Sole key will
+have the value one.  Also processing file name is passed with "file"
+key.  As a result, the option in the next form:</p>
+
+<pre><code>--print|call function(key1,key=val2)
+--print|call function=key1,key=val2
+
+-Mmodule::function(key1,key=val2)
+-Mmodule::function=key1,key=val2
+</code></pre>
+
+<p>will be transformed into following function call:</p>
+
+<pre><code>function(file =&gt; "filename", key1 =&gt; 1, key2 =&gt; "val2")
+</code></pre>
+
+<p>The function can be defined in <code>.greplerc</code> or modules.  Assign the
+arguments into hash, then you can access argument list as member of
+the hash.  Content of the target file can be accessed by <code>$_</code>.</p>
+
+<pre><code>sub function {
+    my %arg = @_;
+    $arg{file};    # "filename"
+    $arg{key1};    # 1
+    $arg{key2};    # "val2"
+    $_;            # contents
+}
+</code></pre>
+
+<h2>
 <a name="pgp" class="anchor" href="#pgp"><span class="octicon octicon-link"></span></a>PGP</h2>
 
 <ul>
@@ -851,8 +998,8 @@ Metacharacters can be included without escaping.  Defined string
 replacement is done only in definition in option argument.  If you
 want to use the word in command line, use option directive instead.</p>
 
-<pre><code>define :kana: \p{utf8::InKatakana}
-option --kanalist --color=never -o --join --re ':kana:[:kana:\n]+'
+<pre><code>define :kana: \p{InKatakana}
+option --kanalist --nocolor -o --join --re ':kana:+(\n:kana:+)*'
 help   --kanalist List up Katakana string
 </code></pre>
 </li>
@@ -914,7 +1061,7 @@ BEGIN {
     use Exporter   ();
     our ($VERSION, @ISA, @EXPORT, @EXPORT_OK, %EXPORT_TAGS);
 
-    $VERSION = sprintf "%d.%03d", q$Revision: 6.21 $ =~ /(\d+)/g;
+    $VERSION = sprintf "%d.%03d", q$Revision: 6.22 $ =~ /(\d+)/g;
 
     @ISA         = qw(Exporter);
     @EXPORT      = qw(&amp;pod &amp;comment &amp;podcomment);
