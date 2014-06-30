@@ -38,7 +38,7 @@
 <h1>
 <a name="synopsis" class="anchor" href="#synopsis"><span class="octicon octicon-link"></span></a>SYNOPSIS</h1>
 
-<p><strong>greple</strong> [<strong>-M___module_] [ __-options</strong> ] pattern [ file... ]</p>
+<p><strong>greple</strong> [<strong>-M</strong><em>module</em>] [ <strong>-options</strong> ] pattern [ file... ]</p>
 
 <pre><code>PATTERN
   pattern              'positive +must -negative ?alternative'
@@ -205,7 +205,7 @@ can be specified multiple times.</p>
 expression can be used in patterns.  See <a href="http://man.he.net/man1/perlre">perlre(1)</a> for detail.</p>
 
 <p>Note that multiple line modifier (<code>m</code>) is set when executed, so put
-<code>(?-m)</code> at the beginning of regex if you wat to explicitly disable
+<code>(?-m)</code> at the beginning of regex if you want to explicitly disable
 it.</p>
 
 <p>Order of capture group in the pattern is not guaranteed.  Please avoid
@@ -230,6 +230,25 @@ more of `yabba' and 'dabba', and none of `bar' and `doo'.</p>
 <p>Multiple `?' preceded tokens are treated all mixed together.  That
 means `?A|B ?C|D' is equivalent to `?A|B|C|D'.  If you want to mean
 `(A or B) and (C or D)', use AND syntax instead: `A|B C|D'.</p>
+
+<p>If the pattern start with ampersand (`&amp;'), it is treated as a
+function, and the function is called instead of searching pattern.
+Function call interface is same as the one for block/region options.</p>
+
+<p>If you have a definition of <em>odd_line</em> function in you <code>.greplrc</code>,
+which is described in this manual later, you can print odd number
+lines like this:</p>
+
+<pre><code>greple -n '&amp;odd_line' file
+</code></pre>
+
+<p>This is the summary of start character for <strong>--le</strong> option:</p>
+
+<pre><code>+  Required pattern
+-  Negative match pattern
+?  Alternative pattern
+&amp;  Function call
+</code></pre>
 </li>
 <li>
 <p><strong>-e</strong> <em>pattern</em>, <strong>--and</strong>=<em>pattern</em></p>
@@ -870,7 +889,7 @@ function called.  So please be sure that all data being consistent.</p>
 </li>
 <li><p><strong>--call</strong>=<em>function</em>(<em>...</em>), <strong>--call</strong>=<em>function</em>=<em>...</em></p></li>
 <li>
-<p>__-M___module_::<em>function(...)</em>, __-M___module_::<em>function=...</em></p>
+<p><strong>-M</strong><em>module</em>::<em>function(...)</em>, <strong>-M</strong><em>module</em>::<em>function=...</em></p>
 
 <p>Option <strong>--call</strong> specify the function executed at the beginning of
 each file processing.  This <em>function</em> have to be called from <strong>main</strong>
@@ -981,6 +1000,28 @@ option --fromcomment --inside='(?s)\/\*.*?\*\/'
 
 <p>If the option named <strong>default</strong> is defined, it will be used as a
 default option.</p>
+
+<p>For the purpose to include following arguments within replaced
+strings, two special notations can be used in option definition.
+String <code>$&lt;_n_&gt;</code> is replaced by the <em>n_th argument after the
+substituted option, where _n</em> is number start from one.  String
+<code>$&lt;shift&gt;</code> is replaced by following command line argument and
+the argument is removed from option list.</p>
+
+<p>For example, when</p>
+
+<pre><code>option --line --le &amp;line=$&lt;shift&gt;
+</code></pre>
+
+<p>is defined, command</p>
+
+<pre><code>greple --line 10,20-30,40
+</code></pre>
+
+<p>will be evaluated as this:</p>
+
+<pre><code>greple --le &amp;line=10,20-30,40
+</code></pre>
 </li>
 <li>
 <p><strong>help</strong> <em>name</em></p>
@@ -1041,7 +1082,7 @@ lines.</p>
 <a name="module" class="anchor" href="#module"><span class="octicon octicon-link"></span></a>MODULE</h1>
 
 <p>Modules can be specified only at the beginning of command line by
-<strong>-M___module_ option.  Name <em>module</em> is prepended by __App::Greple</strong>,
+<strong>-M</strong><em>module</em> option.  Name <em>module</em> is prepended by <strong>App::Greple</strong>,
 so place the module file in <code>App/Greple/</code> directory in Perl library.</p>
 
 <p>If the package name is declared properly, <code>__DATA__</code> section in the
