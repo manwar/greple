@@ -41,7 +41,7 @@
 <p><strong>greple</strong> [<strong>-M</strong><em>module</em>] [ <strong>-options</strong> ] pattern [ file... ]</p>
 
 <pre><code>PATTERN
-  pattern              'positive +must -negative ?alternative'
+  pattern              'and +must -not ?alternative &amp;function'
   -e pattern           regex pattern match across line boundary
   -r pattern           regex pattern cannot be compromised
   -v pattern           regex pattern not to be matched
@@ -79,8 +79,9 @@ COLOR
   --colorful           use default multiple colors
   --[no]256            use ANSI 256 colors
   --regioncolor        use different color for inside/outside regions
-  --random             random color
-  --face
+  --uniqcolor          use different color for unique string
+  --random             use random color each time
+  --face               set/unset vidual effects
 BLOCK
   -p                   paragraph mode
   --all                print whole data
@@ -197,8 +198,8 @@ in the bare or <strong>--le</strong> pattern.</p>
 <h2>
 <a name="patterns" class="anchor" href="#patterns"><span class="octicon octicon-link"></span></a>PATTERNS</h2>
 
-<p>If specific option is not provided, <strong>greple</strong> takes the first argument
-as a search pattern specified by <strong>-le</strong> option.  All of these patterns
+<p>If no specific option is given, <strong>greple</strong> takes the first argument as
+a search pattern specified by <strong>--le</strong> option.  All of these patterns
 can be specified multiple times.</p>
 
 <p>Command itself is written in Perl, and any kind of Perl style regular
@@ -210,7 +211,7 @@ it.</p>
 
 <p>Order of capture group in the pattern is not guaranteed.  Please avoid
 to use direct index, and use relative or named capture group instead.
-For example, repated character can be written as <code>(\w)\g{-1}</code>
+For example, repeated character can be written as <code>(\w)\g{-1}</code>
 or <code>(?&lt;c&gt;\w)\g{c}</code>.</p>
 
 <ul>
@@ -599,6 +600,24 @@ other combination of 3, 4, 5 for 256 colors mode.  Enabled by default.</p>
 Disabled by default.</p>
 </li>
 <li>
+<p><strong>--uniqcolor</strong></p>
+
+<p>Use different colors for different string matched.
+Disabled by default.</p>
+
+<p>Next example prints all words start by `color' and display them all in
+different colors.</p>
+
+<pre><code>greple --uniqcolor 'colou?r\w*'
+</code></pre>
+</li>
+<li>
+<p><strong>--random</strong></p>
+
+<p>Use random selected color to display matched string each time.
+Disabled by default.</p>
+</li>
+<li>
 <p><strong>--face</strong>=[-+]<em>effect</em></p>
 
 <p>Set or unset specified <em>effect</em> for all color specs.  Use `+'
@@ -903,8 +922,10 @@ don't have to export it.</p>
 </ul><p>For these run-time functions, optional argument list can be set in the
 form of <code>key</code> or <code>key=value</code>, connected by comma.  These arguments
 will be passed to the funciton in key =&gt; value list.  Sole key will
-have the value one.  Also processing file name is passed with "file"
-key.  As a result, the option in the next form:</p>
+have the value one.  Also processing file name is passed with the key
+of <code>FILELABEL</code> constant defined in <code>main</code> package.  Use as
+<code>main::FILELABEL</code> from modules.  As a result, the option in the next
+form:</p>
 
 <pre><code>--print|call function(key1,key=val2)
 --print|call function=key1,key=val2
@@ -915,19 +936,21 @@ key.  As a result, the option in the next form:</p>
 
 <p>will be transformed into following function call:</p>
 
-<pre><code>function(file =&gt; "filename", key1 =&gt; 1, key2 =&gt; "val2")
+<pre><code>function(FILELABEL =&gt; "filename", key1 =&gt; 1, key2 =&gt; "val2")
 </code></pre>
 
 <p>The function can be defined in <code>.greplerc</code> or modules.  Assign the
 arguments into hash, then you can access argument list as member of
-the hash.  Content of the target file can be accessed by <code>$_</code>.</p>
+the hash.  It's safe to delete FILELABEL key if you expect random
+parameter is given.  Content of the target file can be accessed by
+<code>$_</code>.</p>
 
 <pre><code>sub function {
     my %arg = @_;
-    $arg{file};    # "filename"
-    $arg{key1};    # 1
-    $arg{key2};    # "val2"
-    $_;            # contents
+    my $filename = delete $arg{main::FILELABEL} or die;
+    $arg{key1};             # 1
+    $arg{key2};             # "val2"
+    $_;                     # contents
 }
 </code></pre>
 
@@ -1003,7 +1026,7 @@ default option.</p>
 
 <p>For the purpose to include following arguments within replaced
 strings, two special notations can be used in option definition.
-String <code>$&lt;_n_&gt;</code> is replaced by the <em>n_th argument after the
+String <code>$&lt;n&gt;</code> is replaced by the <em>n_th argument after the
 substituted option, where _n</em> is number start from one.  String
 <code>$&lt;shift&gt;</code> is replaced by following command line argument and
 the argument is removed from option list.</p>
